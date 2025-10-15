@@ -3,6 +3,11 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 
+// Security packages
+const helmet = require('helmet');                   // Adds secure HTTP headers
+const cors = require('cors');                       // Controls which origins can access the API
+const rateLimit = require('express-rate-limit');    // Throttles excessive requests
+
 // Import database connection and route files
 const { connectDB } = require('./config/db');
 const authRoutes = require('./routes/auth.routes');
@@ -14,19 +19,36 @@ dotenv.config();
 // Create an Express application
 const app = express();
 
+app.use(helmet()); // Sets security-related HTTP headers to prevent common attacks
+
+// Configure CORS (adjust origins as needed for your frontend)
+const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true, // Allow sending cookies (for refresh tokens)
+}));
+
+// Apply rate limiting to all requests
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15-minute window
+  max: 100, // Limit each IP to 100 requests per window
+  message: { error: 'Too many requests, please try again later.' },
+});
+app.use(limiter);
+
 // Middleware setup
 app.use(express.json());      // Parse incoming JSON requests
 app.use(cookieParser());      // Parse cookies for refresh token handling
 
 // Mount routes
-app.use('/auth', authRoutes);        // Authentication routes
+app.use('/auth', authRoutes);         // Authentication routes
 app.use('/protected', protectedRoutes); // Example protected routes (RBAC)
 
 // Health check route
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
-    message: 'ChronicPal backend is running!',
+    message: 'ChronicPal backend is running securely!',
     time: new Date().toISOString(),
   });
 });
@@ -35,6 +57,6 @@ app.get('/health', (_req, res) => {
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
 app.listen(PORT, async () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Secure server running on http://localhost:${PORT}`);
   await connectDB();
 });
