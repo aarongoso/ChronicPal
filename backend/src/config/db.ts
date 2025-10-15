@@ -1,5 +1,6 @@
 const { Sequelize } = require('sequelize');
 const dotenv = require('dotenv');
+const initUserModel = require('../models/user.model');
 
 dotenv.config();
 
@@ -11,16 +12,19 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
     dialect: 'mysql',
-    logging: false, 
+    logging: false,
   }
 );
+
+// Initialize models here
+const User = initUserModel(sequelize);
 
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
     console.log(' MySQL Database connected successfully.');
 
-    // Sync models automatically (for now, good for dev/testing)
+    // Sync all models
     await sequelize.sync();
     console.log(' All models synchronized successfully.');
   } catch (error) {
@@ -28,4 +32,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = { sequelize, connectDB };
+module.exports = { sequelize, connectDB, User };
