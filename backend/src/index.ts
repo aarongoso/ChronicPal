@@ -10,7 +10,6 @@ const app = express();
 app.use(express.json());
 
 app.use('/auth', authRoutes); // mount auth routes
-
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
