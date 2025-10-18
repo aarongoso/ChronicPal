@@ -2,7 +2,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-const { body, validationResult } = require('express-validator'); // for input validation and sanitization
+const { body, validationResult } = require('express-validator'); // input validation and sanitization
+const { logAudit } = require('../utils/auditLogger');            // audit logging utility
 dotenv.config();
 
 // Import the User model
@@ -45,6 +46,9 @@ router.post(
 
       // Create new user (password is hashed via model hook)
       const newUser = await User.create({ email, password, role });
+
+      // Log successful registration
+      await logAudit(newUser.id, 'USER_REGISTERED', req.ip, { email, role });
 
       res.status(201).json({
         message: 'User registered successfully.',
@@ -90,12 +94,16 @@ router.post(
       // Find user by email
       const user = await User.findOne({ where: { email } });
       if (!user) {
+        // Log failed login attempt
+        await logAudit(null, 'LOGIN_FAILED', req.ip, { email });
         return res.status(401).json({ error: 'Invalid credentials.' });
       }
 
       // Compare password with hashed password
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
+        // Log failed login attempt
+        await logAudit(user.id, 'LOGIN_FAILED', req.ip, { email });
         return res.status(401).json({ error: 'Invalid credentials.' });
       }
 
@@ -120,6 +128,12 @@ router.post(
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
+      // Log successful login
+      await logAudit(user.id, 'LOGIN_SUCCESS', req.ip, {
+        email: user.email,
+        role: user.role,
+      });
+
       // Send access token and user info in response
       res.status(200).json({
         message: 'Login successful.',
@@ -132,6 +146,8 @@ router.post(
       });
     } catch (error) {
       console.error('Login error:', error);
+      // Log unexpected login errors
+      await logAudit(null, 'LOGIN_ERROR', req.ip, { error: error.message });
       res.status(500).json({ error: 'Something went wrong during login.' });
     }
   }
