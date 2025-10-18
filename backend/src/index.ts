@@ -11,7 +11,9 @@ const rateLimit = require('express-rate-limit');    // Throttles excessive reque
 // Import database connection and route files
 const { connectDB } = require('./config/db');
 const authRoutes = require('./routes/auth.routes');
-const protectedRoutes = require('./routes/protected.routes'); // optional RBAC routes
+const protectedRoutes = require('./routes/protected.routes'); // RBAC routes
+const adminRoutes = require('./routes/admin.routes');
+
 
 // Load environment variables
 dotenv.config();
@@ -42,7 +44,9 @@ app.use(cookieParser());      // Parse cookies for refresh token handling
 
 // Mount routes
 app.use('/auth', authRoutes);         // Authentication routes
-app.use('/protected', protectedRoutes); // Example protected routes (RBAC)
+app.use('/protected', protectedRoutes); // Rrotected routes (RBAC)
+app.use('/admin', adminRoutes); //Admin routes (Audit log viewer)
+
 
 // Health check route
 app.get('/health', (_req, res) => {
