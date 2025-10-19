@@ -11,9 +11,11 @@ function App() {
   }, []);
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>ChronicPal Frontend</h1>
-      <p>{status}</p>
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-blue-100 to-blue-300 text-center">
+      <h1 className="text-4xl font-bold text-blue-900 mb-4">
+        ChronicPal Frontend
+      </h1>
+      <p className="text-lg text-gray-800">{status}</p>
     </div>
   );
 }
