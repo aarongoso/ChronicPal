@@ -13,6 +13,7 @@ const { connectDB } = require("./config/db");
 const authRoutes = require("./routes/auth.routes");
 const protectedRoutes = require("./routes/protected.routes"); // RBAC routes
 const adminRoutes = require("./routes/admin.routes");
+const fileRoutes = require("./routes/file.routes"); // Secure file upload routes
 
 // Load environment variables
 dotenv.config();
@@ -24,10 +25,12 @@ app.use(helmet()); // Sets security-related HTTP headers to prevent common attac
 
 // Configure CORS (adjust origins as needed for frontend)
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
   "http://localhost:3001",
   "http://127.0.0.1:3001",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
 ];
 
 app.use(
@@ -49,13 +52,14 @@ app.use(limiter);
 app.use(express.json()); // Parse incoming JSON requests
 app.use(cookieParser()); // Parse cookies for refresh token handling
 
-// Mount routes
+// Mount routes (authentication, RBAC, admin tools, secure uploads)
 app.use("/auth", authRoutes); // Authentication routes
 app.use("/protected", protectedRoutes); // Rrotected routes (RBAC)
 app.use("/admin", adminRoutes); //Admin routes (Audit log viewer)
+app.use("/files", fileRoutes); // secure encrypted file uploads
 
 // Health check route
-app.get("/health", (_req, res) => {
+app.get("/health", (_req: any, res: any) => {
   res.json({
     status: "ok",
     message: "ChronicPal backend is running securely!",
@@ -70,3 +74,5 @@ app.listen(PORT, async () => {
   console.log(`Secure server running on http://localhost:${PORT}`);
   await connectDB();
 });
+
+export {};
