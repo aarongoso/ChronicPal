@@ -1,22 +1,57 @@
-import React, { useEffect, useState } from 'react';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 
+// Import components
+import Login from "./components/Login";
+import Register from "./components/Register";
+import Logout from "./components/Logout";
+import FileUpload from "./components/FileUpload";
+import Dashboard from "./pages/Dashboard";
+
+// Main App navigation between Login, Register, Logout, and File Upload
+// Acts as the root of the frontend authentication system
 function App() {
-  const [status, setStatus] = useState('Loading...');
-
-  useEffect(() => {
-    fetch('http://localhost:3000/health')
-      .then((res) => res.json())
-      .then((data) => setStatus(data.message))
-      .catch(() => setStatus('Error: Could not connect to backend'));
-  }, []);
-
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-blue-100 to-blue-300 text-center">
-      <h1 className="text-4xl font-bold text-blue-900 mb-4">
-        ChronicPal Frontend
-      </h1>
-      <p className="text-lg text-gray-800">{status}</p>
-    </div>
+    <BrowserRouter>
+      {/* nav bar used to move between main pages */}
+      <nav className="flex gap-6 p-4 bg-gray-200 justify-center">
+        <Link to="/login" className="text-blue-600 font-semibold">
+          Login
+        </Link>
+
+        <Link to="/register" className="text-blue-600 font-semibold">
+          Register
+        </Link>
+
+        <Link to="/upload" className="text-blue-600 font-semibold">
+          Upload File
+        </Link>
+
+        <Logout />
+      </nav>
+
+      {/* App route definitions */}
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* Auth pages */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Secure file upload page */}
+        <Route
+          path="/upload"
+          element={
+            <div className="flex justify-center mt-8">
+              <FileUpload />
+            </div>
+          }
+        />
+
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="*" element={<div>Page not found</div>} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
