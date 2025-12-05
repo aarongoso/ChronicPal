@@ -1,20 +1,16 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-
-// Accepts only PDF, JPG, JPEG, PNG
-// Rejects dangerous extensions: .exe, .js
-// multer memory storage so files are never written unencrypted and logs audit event 
-
+// https://github.com/expressjs/multer#memorystorage
+// https://dev.to/hexshift/a-complete-guide-to-handling-file-uploads-with-multer-in-nodejs-4iig
+// Accepts only PDF, JPG, JPEG, PNG and rejects dangerous extensions
+// multer memory storage so files are never written unencrypted and logs audit event
 // Middleware to check JWT access token
-const { authenticateToken } = require("../middleware/auth.middleware");
-
+const { authenticateToken } = require("../middleware/AuthMiddleware");
 // Encryption helper
-const { encryptAndSaveFile } = require("../utils/fileEncryption");
-
+const { encryptAndSaveFile } = require("../utils/FileEncryption");
 // Audit logging helper
-const { logAudit } = require("../utils/auditLogger");
-
+const { logAudit } = require("../utils/AuditLogger");
 const router = express.Router();
 
 // Multer using in memory storage
@@ -24,13 +20,9 @@ const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: any, file: any, cb: any) => {
     // Allowed MIME types
-    const allowedMimeTypes = [
-      "application/pdf",
-      "image/png",
-      "image/jpeg",
-    ];
+    const allowedMimeTypes = ["application/pdf", "image/png", "image/jpeg"];
 
     // Blocked extensions
     const blockedExtensions = [".exe", ".js", ".bat", ".cmd", ".sh"];
@@ -49,14 +41,13 @@ const upload = multer({
   },
 });
 
-// ----- POST /files/upload --------------
 // Only authenticated users can upload
 // File has to be provided in "file" form data field
 router.post(
   "/upload",
   authenticateToken,
   upload.single("file"),
-  async (req, res) => {
+  async (req: any, res: any) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded." });
@@ -80,24 +71,19 @@ router.post(
         size,
       });
 
-      // show message in terminal
       console.log("Encrypted file stored as:", encryptedName);
 
       return res.status(201).json({
         message: "File uploaded and encrypted successfully.",
-        metadata: {
-          originalName,
-          mimeType,
-          size,
-        },
+        metadata: { originalName, mimeType, size },
       });
     } catch (err: any) {
-      console.error("File upload error:", err.message || err);
-      return res
-        .status(500)
-        .json({ error: "File upload failed. Please try again." });
+      console.error("File upload error:", err?.message || err);
+      return res.status(500).json({ error: "File upload failed. Please try again." });
     }
   }
 );
 
 module.exports = router;
+
+export {};

@@ -24,6 +24,15 @@ function Login() {
 
       // Store the access token for authenticated actions
       localStorage.setItem("accessToken", res.data.token);
+
+      // Store user role (admin, doctor, patient)
+      // shows admin dashboard and audit logs
+      if (res.data.user?.role) {
+        localStorage.setItem("role", res.data.user.role);
+      }
+
+      // navbar refresh after login
+      window.location.href = "/dashboard";
     } catch {
       setMessage("Invalid login. Please try again.");
     }
