@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "start": "node --loader ts-node/esm index.ts"
+    "start": "node --loader ts-node/esm ./src/index.ts"
   },
   "keywords": [],
   "author": "",

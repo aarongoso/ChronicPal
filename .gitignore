@@ -13,3 +13,9 @@ __pycache__/
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Hide encrypted uploads from Github
+encrypted_uploads/
+
+# One time dev script (do NOT upload to GitHub)
+CreateAdmin.ts

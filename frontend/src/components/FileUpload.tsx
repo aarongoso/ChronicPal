@@ -24,7 +24,8 @@ function FileUpload() {
     setStatus("");
   };
 
-  // Upload handler
+  // Upload handler (pattern adapted from StackOverflow Axios FormData example)
+  // ref: https://stackoverflow.com/questions/47630163/axios-post-request-to-send-form-data
   const handleUpload = async () => {
     if (!file) {
       setStatus("Please select a valid file before uploading.");

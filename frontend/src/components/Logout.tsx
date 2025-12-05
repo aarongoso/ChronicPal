@@ -1,12 +1,25 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/Api";
 
-function Logout() {
+// logout button that clears tokens both server side and client side
+const Logout: React.FC = () => {
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
     try {
-      await api.post("/auth/logout"); // Refresh token is invalidated
-      window.location.reload(); // Reset UI
-    } catch {
-      alert("Logout failed.");
+      await api.post("/auth/logout");
+
+      // clear all local auth info
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("role");
+
+      navigate("/login");
+
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Logout failed. Please try again.");
     }
   };
 
@@ -18,6 +31,6 @@ function Logout() {
       Logout
     </button>
   );
-}
+};
 
 export default Logout;

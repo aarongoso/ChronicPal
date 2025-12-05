@@ -4,16 +4,19 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 
 // Security packages
+// https://helmetjs.github.io/
+// https://expressjs.com/en/resources/middleware/cors.html
+// https://www.npmjs.com/package/express-rate-limit
 const helmet = require("helmet"); // Adds secure HTTP headers
 const cors = require("cors"); // Controls which origins can access the API
-const rateLimit = require("express-rate-limit"); // Throttles excessive requests
+const rateLimit = require("express-rate-limit"); // Handles excessive requests
 
 // Import database connection and route files
-const { connectDB } = require("./config/db");
-const authRoutes = require("./routes/auth.routes");
-const protectedRoutes = require("./routes/protected.routes"); // RBAC routes
-const adminRoutes = require("./routes/admin.routes");
-const fileRoutes = require("./routes/file.routes"); // Secure file upload routes
+const { connectDB } = require("./config/Db");
+const authRoutes = require("./routes/AuthRoutes");
+const protectedRoutes = require("./routes/ProtectedRoutes"); // RBAC routes
+const adminRoutes = require("./routes/AdminRoutes");
+const fileRoutes = require("./routes/FileRoutes"); // Secure file upload routes
 
 // Load environment variables
 dotenv.config();
@@ -74,5 +77,3 @@ app.listen(PORT, async () => {
   console.log(`Secure server running on http://localhost:${PORT}`);
   await connectDB();
 });
-
-export {};

@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
+// https://stackoverflow.com/questions/77220309/aes-256-gcm-encryption-in-node-js-and-decryption-in-golang
 // Encrypt file buffers using AES-256-GCM
 // so files are encrypted never stored in plaintext
 // encryption key is 32-byte (256-bit) hex string stored in .env
@@ -46,3 +47,5 @@ module.exports = {
   encryptAndSaveFile,
   ENCRYPTED_DIR,
 };
+
+export {};

@@ -1,5 +1,5 @@
-const { DataTypes, Model } = require('sequelize');
-const bcrypt = require('bcrypt');
+const { DataTypes, Model } = require("sequelize");
+const bcrypt = require("bcrypt"); //bcrypt for hashing user passwords ( Secure app labs)
 
 class User extends Model {}
 
@@ -11,6 +11,7 @@ const initUserModel = (sequelize: any) => {
         autoIncrement: true,
         primaryKey: true,
       },
+
       email: {
         type: DataTypes.STRING(100),
         allowNull: false,
@@ -19,23 +20,35 @@ const initUserModel = (sequelize: any) => {
           isEmail: true,
         },
       },
+
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: false, // hashed later in hooks so never stored raw
       },
+
       role: {
-        type: DataTypes.ENUM('patient', 'doctor', 'admin'),
+        type: DataTypes.ENUM("patient", "doctor", "admin"),
         allowNull: false,
-        defaultValue: 'patient',
+        defaultValue: "patient", // default role for any registered user
       },
     },
     {
-      sequelize, 
-      modelName: 'User',
-      tableName: 'users',
+      sequelize,
+      modelName: "User",
+      tableName: "users",
+
       hooks: {
+        // Hash password before inserting new user record
         beforeCreate: async (user: any) => {
           if (user.password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+          }
+        },
+
+        // Hash password again if it changes during update
+        beforeUpdate: async (user: any) => {
+          if (user.changed("password")) {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(user.password, salt);
           }
@@ -48,3 +61,5 @@ const initUserModel = (sequelize: any) => {
 };
 
 module.exports = initUserModel;
+
+export {};

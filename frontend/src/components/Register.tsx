@@ -5,7 +5,6 @@ function Register() {
   // Track form inputs securely in state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("patient");
   const [message, setMessage] = useState("");
 
   // Sanitise input (prevent XSS data submission)
@@ -19,7 +18,7 @@ function Register() {
       const res = await api.post("/auth/register", {
         email: sanitize(email),
         password: sanitize(password),
-        role,
+        role: "patient", // enforce backend rule (only patients self register)
       });
 
       setMessage(res.data.message || "Registration completed.");
@@ -54,15 +53,10 @@ function Register() {
           required
         />
 
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
-        >
-          <option value="patient">Patient</option>
-          <option value="doctor">Doctor</option>
-          <option value="admin">Admin</option>
-        </select>
+        {/* Removed dropdown — only patients can self register */}
+        <p className="text-gray-600 text-sm mb-3">
+          Account type: <strong>Patient</strong>
+        </p>
 
         <button className="bg-blue-600 w-full text-white p-2 rounded-lg hover:bg-blue-700">
           Register
