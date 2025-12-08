@@ -12,6 +12,8 @@ const { encryptAndSaveFile } = require("../utils/FileEncryption");
 // Audit logging helper
 const { logAudit } = require("../utils/AuditLogger");
 const router = express.Router();
+// Antivirus scanner (ClamAV CLI)
+const { scanWithClamAV } = require("../utils/ClamAVScanner");
 
 // Multer using in memory storage
 // Files will remain in RAM and never be written in plaintext
@@ -22,7 +24,8 @@ const upload = multer({
   },
   fileFilter: (req: any, file: any, cb: any) => {
     // Allowed MIME types
-    const allowedMimeTypes = ["application/pdf", "image/png", "image/jpeg"];
+    // added application/zip strictly for EICAR (ClamAV scan) testing only
+    const allowedMimeTypes = ["application/pdf", "image/png", "image/jpeg", "application/zip"];
 
     // Blocked extensions
     const blockedExtensions = [".exe", ".js", ".bat", ".cmd", ".sh"];
@@ -60,7 +63,23 @@ router.post(
       const mimeType = req.file.mimetype;
       const size = req.file.size;
 
-      // Encrypt and store file
+      // writes the file to a temporary OS directory, scans with ClamAV, then deletes it
+      // prevent plaintext storage while using a real antivirus engine
+      const scanResult = await scanWithClamAV(fileBuffer, originalName);
+
+      if (scanResult.infected) {
+        // Log security incident for forensic traceability
+        await logAudit(user.id, "VIRUS_DETECTED", req.ip, {
+          originalName,
+          scanOutput: scanResult.result, // clamscan reported
+        });
+
+        return res.status(400).json({
+          error: "Virus detected — upload blocked.",
+        });
+      }
+
+      // Encrypt and store file (only after clean scan)
       const encryptedName = encryptAndSaveFile(fileBuffer, originalName);
 
       // Log audit entry
@@ -79,7 +98,18 @@ router.post(
       });
     } catch (err: any) {
       console.error("File upload error:", err?.message || err);
-      return res.status(500).json({ error: "File upload failed. Please try again." });
+
+      // Log the failure
+      await logAudit(
+        req?.user?.id || null,
+        "UPLOAD_ERROR",
+        req.ip,
+        { error: err?.message }
+      );
+
+      return res
+        .status(500)
+        .json({ error: "File upload failed. Please try again." });
     }
   }
 );
