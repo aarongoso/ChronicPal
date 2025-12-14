@@ -26,13 +26,25 @@ function Login() {
       localStorage.setItem("accessToken", res.data.token);
 
       // Store user role (admin, doctor, patient)
-      // shows admin dashboard and audit logs
+      // RBAC for rendering dashboards + navbars
       if (res.data.user?.role) {
         localStorage.setItem("role", res.data.user.role);
       }
 
-      // navbar refresh after login
-      window.location.href = "/dashboard";
+      // Role aware redirect, RBAC
+      const role = res.data.user?.role;
+
+      if (role === "admin") {
+        // admin
+        window.location.href = "/admin";
+      } else if (role === "doctor") {
+        // doctor
+        window.location.href = "/doctor";
+      } else {
+        // patient
+        window.location.href = "/patient";
+      }
+
     } catch {
       setMessage("Invalid login. Please try again.");
     }
