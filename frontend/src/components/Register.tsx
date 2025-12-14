@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../services/Api";
 
 function Register() {
@@ -53,7 +54,7 @@ function Register() {
           required
         />
 
-        {/* Removed dropdown — only patients can self register */}
+        {/* Removed dropdown: only patients can self register */}
         <p className="text-gray-600 text-sm mb-3">
           Account type: <strong>Patient</strong>
         </p>
@@ -65,6 +66,19 @@ function Register() {
         {message && (
           <p className="text-center mt-4 text-sm text-gray-700">{message}</p>
         )}
+
+        {/* doctor onboarding: request based*/}
+        <div className="mt-4 text-center">
+          <p className="text-xs text-gray-500 mb-1">
+            Are you a doctor?
+          </p>
+          <Link
+            to="/doctor-request"
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Request a Doctor Account
+          </Link>
+        </div>
       </form>
     </div>
   );

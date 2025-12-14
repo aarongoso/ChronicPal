@@ -22,10 +22,11 @@ function AuditLogViewer() {
   const actionColours: any = {
     LOGIN_SUCCESS: "bg-green-600 text-white",
     LOGIN_FAILED: "bg-red-600 text-white",
+    USER_REGISTERED: "bg-purple-600 text-white",
     FILE_UPLOAD: "bg-blue-600 text-white",
     VIRUS_DETECTED: "bg-yellow-600 text-black",
-    ACCOUNT_REGISTERED: "bg-purple-600 text-white",
-    UPLOAD_ERROR: "bg-orange-600 text-white",
+    LOGOUT: "bg-gray-600 text-white",
+    TOKEN_REFRESHED: "bg-indigo-600 text-white",
   };
 
   // Fetch logs from backend
@@ -113,12 +114,13 @@ function AuditLogViewer() {
           value={filters.action}
         >
           <option value="">Filter by action</option>
-          <option value="LOGIN_SUCCESS">LOGIN_SUCCESS</option>
-          <option value="LOGIN_FAILED">LOGIN_FAILED</option>
-          <option value="FILE_UPLOAD">FILE_UPLOAD</option>
-          <option value="VIRUS_DETECTED">VIRUS_DETECTED</option>
-          <option value="ACCOUNT_REGISTERED">ACCOUNT_REGISTERED</option>
-          <option value="UPLOAD_ERROR">UPLOAD_ERROR</option>
+          <option value="LOGIN_SUCCESS">Login Success</option>
+          <option value="LOGIN_FAILED">Login Failed</option>
+          <option value="USER_REGISTERED">User Registered</option>
+          <option value="FILE_UPLOAD">File Upload</option>
+          <option value="VIRUS_DETECTED">Virus Detected</option>
+          <option value="LOGOUT">Logout</option>
+          <option value="TOKEN_REFRESHED">Token Refreshed</option>
         </select>
 
         <input
