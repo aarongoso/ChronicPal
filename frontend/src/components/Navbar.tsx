@@ -89,6 +89,17 @@ const Navbar: React.FC = () => {
               Appointments
             </button>
             
+            <button
+              onClick={() =>
+                alert(
+                  "Notifications placeholder — will be implemented with Socket.io after midpoint"
+                )
+              }
+              className="hover:bg-slate-800 px-2.5 py-1 rounded"
+            >
+              Notifications
+            </button>
+
             <SecureFilesButton />
 
             <button
@@ -138,6 +149,16 @@ const Navbar: React.FC = () => {
             >
               Patient History
             </button>
+            <button
+              onClick={() =>
+                alert(
+                  "Notifications placeholder — Socket.io alerts will appear here after midpoint"
+                )
+              }
+              className="hover:bg-slate-800 px-2.5 py-1 rounded"
+            >
+              Notifications
+            </button>
 
             <SecureFilesButton />
 
@@ -148,7 +169,6 @@ const Navbar: React.FC = () => {
               Logout
             </button>
           </div>
-
         </div>
       </nav>
     );

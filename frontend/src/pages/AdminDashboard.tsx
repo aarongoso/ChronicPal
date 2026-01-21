@@ -95,6 +95,9 @@ function AdminDashboard() {
                 </div>
 
                 <div className="flex gap-2">
+                  <button className="px-3 py-1 bg-slate-900 text-white text-xs rounded hover:bg-slate-800">
+                    View Request
+                  </button>
                   <button className="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700">
                     Approve
                   </button>
@@ -167,7 +170,7 @@ function AdminDashboard() {
                   <td className="p-2">{user.role}</td>
                   <td className="p-2 text-center">
                     <button className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs">
-                      Edit
+                      Manage
                     </button>
                   </td>
                 </tr>
