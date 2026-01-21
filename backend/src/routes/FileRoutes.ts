@@ -25,7 +25,7 @@ const upload = multer({
   fileFilter: (req: any, file: any, cb: any) => {
     // Allowed MIME types
     // added application/zip strictly for EICAR (ClamAV scan) testing only
-    const allowedMimeTypes = ["application/pdf", "image/png", "image/jpeg", "application/zip"];
+    const allowedMimeTypes = ["application/pdf", "image/png", "image/jpeg", "application/zip", "application/x-zip-compressed"];
 
     // Blocked extensions
     const blockedExtensions = [".exe", ".js", ".bat", ".cmd", ".sh"];

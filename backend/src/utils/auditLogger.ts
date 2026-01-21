@@ -1,4 +1,4 @@
-const { AuditLog } = require("../config/Db");
+const { AuditLog } = require("../config/db");
 
 /**
  * Records an audit log entry for security-relevant actions

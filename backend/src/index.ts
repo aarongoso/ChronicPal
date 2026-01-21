@@ -12,11 +12,13 @@ const cors = require("cors"); // Controls which origins can access the API
 const rateLimit = require("express-rate-limit"); // Handles excessive requests
 
 // Import database connection and route files
-const { connectDB } = require("./config/Db");
+const { connectDB } = require("./config/db");
 const authRoutes = require("./routes/AuthRoutes");
 const protectedRoutes = require("./routes/ProtectedRoutes"); // RBAC routes
 const adminRoutes = require("./routes/AdminRoutes");
 const fileRoutes = require("./routes/FileRoutes"); // Secure file upload routes
+const foodRoutes = require("./routes/FoodRoutes");
+const medicationRoutes = require("./routes/MedicationRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -60,6 +62,8 @@ app.use("/auth", authRoutes); // Authentication routes
 app.use("/protected", protectedRoutes); // Rrotected routes (RBAC)
 app.use("/admin", adminRoutes); //Admin routes (Audit log viewer)
 app.use("/files", fileRoutes); // secure encrypted file uploads
+app.use("/food", foodRoutes); // Food logging routes
+app.use("/medications", medicationRoutes); // Medication logging routes
 
 // Health check route
 app.get("/health", (_req: any, res: any) => {

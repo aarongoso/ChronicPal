@@ -8,7 +8,8 @@ function FileUpload() {
   const [status, setStatus] = useState<string>("");
 
   // Frontend validation to prevent obviously invalid files
-  const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+  const allowedTypes = ["application/pdf", "image/png", "image/jpeg","application/zip",
+  "application/x-zip-compressed"];
 
   // Handle file selection from input box
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
