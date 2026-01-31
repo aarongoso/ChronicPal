@@ -19,6 +19,8 @@ const adminRoutes = require("./routes/AdminRoutes");
 const fileRoutes = require("./routes/FileRoutes"); // Secure file upload routes
 const foodRoutes = require("./routes/FoodRoutes");
 const medicationRoutes = require("./routes/MedicationRoutes");
+const aiRoutes = require("./routes/AiRoutes");
+const symptomRoutes = require("./routes/SymptomRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -64,6 +66,8 @@ app.use("/admin", adminRoutes); //Admin routes (Audit log viewer)
 app.use("/files", fileRoutes); // secure encrypted file uploads
 app.use("/food", foodRoutes); // Food logging routes
 app.use("/medications", medicationRoutes); // Medication logging routes
+app.use("/ai", aiRoutes); // AI inference proxy routes (backend -> ML service)
+app.use("/symptoms", symptomRoutes); // Symptom logging routes (patient timeline -> future AI payload building)
 
 // Health check route
 app.get("/health", (_req: any, res: any) => {

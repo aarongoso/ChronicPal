@@ -56,6 +56,43 @@ const validateRiskTags = body("riskTags")
     return true;
   });
 
+// manual calories
+const validateCaloriesKcal = body("caloriesKcal")
+  .optional()
+  .custom((value: any) => {
+    const n = typeof value === "number" ? value : parseFloat(String(value));
+    if (!Number.isFinite(n)) throw new Error("caloriesKcal must be a number.");
+    if (n < 0 || n > 10000) throw new Error("caloriesKcal out of allowed range.");
+    return true;
+  });
+
+// manual macros
+// values can be numbers or null
+const validateMacros = body("macros")
+  .optional()
+  .custom((value: any) => {
+    if (typeof value !== "object" || Array.isArray(value)) {
+      throw new Error("macros must be an object.");
+    }
+
+    const allowedKeys = ["proteinG", "carbsG", "fatG", "fiberG", "sugarG"];
+
+    for (const key of Object.keys(value)) {
+      if (!allowedKeys.includes(key)) {
+        throw new Error(`Invalid macros field: ${key}`);
+      }
+
+      const v = value[key];
+      if (v === null) continue;
+
+      const n = typeof v === "number" ? v : parseFloat(String(v));
+      if (!Number.isFinite(n)) throw new Error(`macros.${key} must be a number or null.`);
+      if (n < 0 || n > 500) throw new Error(`macros.${key} out of allowed range.`);
+    }
+
+    return true;
+  });
+
 const validateFoodLog = [
   body("source")
     .exists()
@@ -113,6 +150,10 @@ const validateFoodManualLog = [
     .bail()
     .isISO8601()
     .withMessage("consumedAt must be a valid ISO8601 date/time."),
+
+  // nutrition fields for manual entries
+  validateCaloriesKcal,
+  validateMacros,
 
   body("notes")
     .optional()

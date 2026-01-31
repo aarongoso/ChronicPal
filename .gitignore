@@ -2,10 +2,15 @@
 node_modules/
 dist/
 .env
+backend/node_modules/
+frontend/node_modules/
 
-# Python
+# Python ML service
 __pycache__/
 *.pyc
+MlService/.venv/
+MlService/.env
+MlService/ML/model.joblib
 
 # VS Code
 .vscode/

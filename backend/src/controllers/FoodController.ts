@@ -81,7 +81,8 @@ const logFood = async (req: any, res: any) => {
     // normalise values defensively (validators should handle it but controller should not trust inputs)
     const sourceNorm = String(source || "").trim().toUpperCase();
     const externalIdNorm = String(externalId || "").trim();
-    const riskTagsSafe = riskTags && typeof riskTags === "object" && !Array.isArray(riskTags) ? riskTags : null;
+    const riskTagsSafe =
+      riskTags && typeof riskTags === "object" && !Array.isArray(riskTags) ? riskTags : null;
 
     let name = null;
     let brand = null;
@@ -212,13 +213,28 @@ const logFoodManual = async (req: any, res: any) => {
   const userId = req.user?.id;
   const ip = req.ip;
 
-  const { name, consumedAt, notes, riskTags } = req.body;
+  // Added caloriesKcal + macros as optional manual fields
+  // helps correlations, Manual needs to persist them
+  const { name, consumedAt, notes, riskTags, caloriesKcal, macros } = req.body;
 
   try {
     const nameNorm = String(name || "").trim();
 
     // riskTags is already validated, but still keep it defensive
-    const riskTagsSafe = riskTags && typeof riskTags === "object" && !Array.isArray(riskTags) ? riskTags : null;
+    const riskTagsSafe =
+      riskTags && typeof riskTags === "object" && !Array.isArray(riskTags) ? riskTags : null;
+
+    // caloriesKcal optional numeric, store null if missing/blank
+    const caloriesNorm =
+      typeof caloriesKcal === "number"
+        ? caloriesKcal
+        : caloriesKcal !== undefined && caloriesKcal !== null && String(caloriesKcal).trim() !== ""
+        ? parseFloat(String(caloriesKcal))
+        : null;
+
+    // macros: optional object; validator constrains keys/values
+    const macrosSafe =
+      macros && typeof macros === "object" && !Array.isArray(macros) ? macros : null;
 
     const created = await FoodLog.create({
       userId,
@@ -226,8 +242,9 @@ const logFoodManual = async (req: any, res: any) => {
       externalId: null, // manual entry has no trusted external reference
       name: nameNorm,
       brand: null,
-      caloriesKcal: null,
-      macros: null,
+      caloriesKcal: Number.isFinite(caloriesNorm) ? caloriesNorm : null,
+      macros: macrosSafe,
+
       riskTags: riskTagsSafe,
       consumedAt: new Date(consumedAt),
       notes: notes ? String(notes) : null,
