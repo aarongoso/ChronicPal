@@ -5,6 +5,7 @@ const initUserModel = require("../models/UserModel");
 const initAuditLogModel = require("../models/AuditLogModel");
 const initFoodLogModel = require("../models/FoodLogModel");
 const initMedicationLogModel = require("../models/MedicationLogModel");
+const initSymptomLogModel = require("../models/SymptomLogModel");
 
 // Sequelize ORM connects to MySQL database and synchronizes all models
 export const sequelize = new Sequelize(
@@ -24,6 +25,7 @@ export const User = initUserModel(sequelize);
 export const AuditLog = initAuditLogModel(sequelize);
 export const FoodLog = initFoodLogModel(sequelize);
 export const MedicationLog = initMedicationLogModel(sequelize);
+export const SymptomLog = initSymptomLogModel(sequelize); // symptom -> flare-up AI + food/med correlations
 
 // Define relationships
 // Audit logs link back to users
@@ -37,6 +39,10 @@ User.hasMany(FoodLog, { foreignKey: "userId" });
 // Medication logs belong to patient users
 MedicationLog.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
 User.hasMany(MedicationLog, { foreignKey: "userId" });
+
+// Symptom logs belong to patient users (required for flare-up prediction + symptom correlations)
+SymptomLog.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
+User.hasMany(SymptomLog, { foreignKey: "userId" });
 
 // Connects to MySQL database and synchronizes all models
 export const connectDB = async () => {
