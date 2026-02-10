@@ -12,6 +12,14 @@ function getUserIdSafe(req: any): number | null {
   return req?.user?.id ?? null;
 }
 
+// Normalise names so "Apple" and "apple " count as the same item
+function normaliseKey(value: any): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return trimmed.toLowerCase();
+}
+
 async function auditAi(req: any, action: string, details: any = {}) {
   const userId = getUserIdSafe(req);
   const ipAddress = req.ip || req.connection?.remoteAddress || "unknown";
@@ -156,12 +164,18 @@ function buildSymptomTimingCorrelations(symptomRows: any[], foodRows: any[], med
   let highSymptomsAfterFood = 0;
   let highSymptomsAfterMeds = 0;
 
+  const foodHighCounts: Record<string, number> = {};
+  const foodSafeCounts: Record<string, number> = {};
+  const foodHighSymptomCounts: Record<string, number> = {};
+  const foodHighTagCounts: Record<string, number> = {}; // Track tag based patterns from riskTags
+  const medHighCounts: Record<string, number> = {};
+  const medHighSymptomCounts: Record<string, number> = {};
+  const displayNameByKey: Record<string, string> = {};
+
   for (const s of symptomRows) {
     const sev = typeof s.severity === "number" ? s.severity : null;
     const loggedAt = s.loggedAt ? new Date(s.loggedAt) : null;
     if (sev === null || !loggedAt || isNaN(loggedAt.getTime())) continue;
-
-    if (sev < highSeverityThreshold) continue;
 
     // Food window: last 12 hours
     const foodStart = new Date(loggedAt);
@@ -172,7 +186,27 @@ function buildSymptomTimingCorrelations(symptomRows: any[], foodRows: any[], med
       return t && !isNaN(t.getTime()) && t >= foodStart && t <= loggedAt;
     });
 
-    if (foodMatch) highSymptomsAfterFood++;
+    if (foodMatch) {
+      const foodName = foodMatch.name ? String(foodMatch.name).trim() : "a food entry";
+      const symptomName = s.symptomName ? String(s.symptomName).trim() : "symptoms";
+      const foodKey = normaliseKey(foodName) || foodName;
+      const symptomKey = normaliseKey(symptomName) || symptomName;
+      displayNameByKey[foodKey] = displayNameByKey[foodKey] || foodName;
+      displayNameByKey[symptomKey] = displayNameByKey[symptomKey] || symptomName;
+      if (sev >= highSeverityThreshold) {
+        highSymptomsAfterFood++;
+        foodHighCounts[foodKey] = (foodHighCounts[foodKey] || 0) + 1;
+        foodHighSymptomCounts[symptomKey] = (foodHighSymptomCounts[symptomKey] || 0) + 1;
+        const tags = foodMatch.riskTags; // riskTags stored with food logs
+        if (tags && typeof tags === "object" && !Array.isArray(tags)) {
+          for (const [key, value] of Object.entries(tags)) {
+            if (value === true) {
+              foodHighTagCounts[key] = (foodHighTagCounts[key] || 0) + 1;
+            }
+          }
+        }
+      }
+    }
 
     // Medication window: last 24 hours
     const medStart = new Date(loggedAt);
@@ -183,48 +217,275 @@ function buildSymptomTimingCorrelations(symptomRows: any[], foodRows: any[], med
       return t && !isNaN(t.getTime()) && t >= medStart && t <= loggedAt;
     });
 
-    if (medMatch) highSymptomsAfterMeds++;
+    if (medMatch && sev >= highSeverityThreshold) {
+      const medName = (medMatch.medicationName || medMatch.name)
+        ? String(medMatch.medicationName || medMatch.name).trim()
+        : "a medication entry";
+      const symptomName = s.symptomName ? String(s.symptomName).trim() : "symptoms";
+      const medKey = normaliseKey(medName) || medName;
+      const symptomKey = normaliseKey(symptomName) || symptomName;
+      displayNameByKey[medKey] = displayNameByKey[medKey] || medName;
+      displayNameByKey[symptomKey] = displayNameByKey[symptomKey] || symptomName;
+      highSymptomsAfterMeds++;
+      medHighCounts[medKey] = (medHighCounts[medKey] || 0) + 1;
+      medHighSymptomCounts[symptomKey] = (medHighSymptomCounts[symptomKey] || 0) + 1;
+    }
   }
+
+  const topKey = (counts: Record<string, number>) => {
+    const entries = Object.entries(counts);
+    if (entries.length == 0) return null;
+    entries.sort((a, b) => b[1] - a[1]);
+    return entries[0][0];
+  };
+
+  const topList = (counts: Record<string, number>, max: number = 3) => {
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, max)
+      .map(([key]) => displayNameByKey[key] || key);
+  };
+
+  const topListWithCounts = (counts: Record<string, number>, max: number = 5) => {
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, max)
+      .map(([name, count]) => ({ name, count }));
+  };
+
+  const mixedFoods = () => {
+    const mixed: string[] = [];
+    for (const name of Object.keys(foodHighCounts)) {
+      if (foodSafeCounts[name]) mixed.push(name);
+    }
+    return mixed.slice(0, 3).map((key) => displayNameByKey[key] || key);
+  };
+
+  const topFoodHigh = topKey(foodHighCounts);
+  const topFoodHighSymptom = topKey(foodHighSymptomCounts);
+  const topFoodHighTag = topKey(foodHighTagCounts);
+  const topMedHigh = topKey(medHighCounts);
+  const topMedHighSymptom = topKey(medHighSymptomCounts);
+  const topFoodHighDisplay = topFoodHigh ? displayNameByKey[topFoodHigh] || topFoodHigh : null;
+  const topFoodHighSymptomDisplay = topFoodHighSymptom
+    ? displayNameByKey[topFoodHighSymptom] || topFoodHighSymptom
+    : null;
+  const topMedHighDisplay = topMedHigh ? displayNameByKey[topMedHigh] || topMedHigh : null;
+  const topMedHighSymptomDisplay = topMedHighSymptom
+    ? displayNameByKey[topMedHighSymptom] || topMedHighSymptom
+    : null;
+
+  // Safe foods: foods followed by symptoms, but not higher than usual within 12 hours
+  for (const f of foodRows) {
+    const consumedAt = f.consumedAt ? new Date(f.consumedAt) : null;
+    if (!consumedAt || isNaN(consumedAt.getTime())) continue;
+
+    const foodEnd = new Date(consumedAt);
+    foodEnd.setHours(foodEnd.getHours() + 12);
+
+    const symptomsInWindow = symptomRows.filter((s: any) => {
+      const t = s.loggedAt ? new Date(s.loggedAt) : null;
+      return t && !isNaN(t.getTime()) && t >= consumedAt && t <= foodEnd;
+    });
+
+    if (symptomsInWindow.length === 0) continue;
+
+    const hasHigh = symptomsInWindow.some((s: any) => {
+      const sev = typeof s.severity === "number" ? s.severity : null;
+      return typeof sev === "number" && sev >= highSeverityThreshold;
+    });
+
+    if (!hasHigh) {
+      const foodName = f.name ? String(f.name).trim() : "a food entry";
+      const foodKey = normaliseKey(foodName) || foodName;
+      displayNameByKey[foodKey] = displayNameByKey[foodKey] || foodName;
+      foodSafeCounts[foodKey] = (foodSafeCounts[foodKey] || 0) + 1;
+    }
+  }
+
+  const topFoodSafe = topKey(foodSafeCounts);
+  const topFoodSafeDisplay = topFoodSafe ? displayNameByKey[topFoodSafe] || topFoodSafe : null;
 
   const summary: any[] = [
     {
+      type: "meta",
+      riskFoods: topList(foodHighCounts),
+      safeFoods: topList(foodSafeCounts),
+      mixedFoods: mixedFoods(),
+    },
+    {
       type: "info",
       message:
-        "Symptom-based correlations use simple timing windows (food: 12h, medication: 24h) to highlight possible patterns.",
+        "These notes look for possible patterns in your recent logs to help you spot triggers and routines.",
     },
   ];
 
   if (highSymptomsAfterFood > 0) {
     summary.push({
       type: "warning",
-      message: "Higher than usual symptom severity occurred ${highSymptomsAfterFood} time(s) within 12 hours of a logged food entry in this window.",
+      message: topFoodHighDisplay
+        ? `Higher-than-usual symptoms (often ${topFoodHighSymptomDisplay || "symptoms"}) occurred after ${topFoodHighDisplay}. Consider reducing or spacing this item and discuss with your clinician if the pattern repeats.`
+        : `You had ${highSymptomsAfterFood} higher-than-usual symptom event(s) after a food entry. This may be a food-related pattern to watch.`,
     });
   } else {
     summary.push({
       type: "info",
-      message: "No clear food -> symptom timing pattern detected in this time window.",
+      message: "No clear food-related pattern was detected in this time window.",
+    });
+  }
+
+  if (topFoodHighTag && (foodHighTagCounts[topFoodHighTag] || 0) >= 2) {
+    const tagLabelMap: Record<string, string> = {
+      containsDairy: "dairy",
+      containsGluten: "gluten",
+      highFibre: "high-fibre",
+      spicy: "spicy",
+      highFat: "high-fat",
+      caffeine: "caffeine",
+      alcohol: "alcohol",
+      highSugar: "high-sugar",
+      highSodium: "high-sodium",
+      highIron: "high-iron",
+    };
+    const label = tagLabelMap[topFoodHighTag] || topFoodHighTag;
+    summary.push({
+      type: "note",
+      message: `Higher-than-usual symptoms often followed foods tagged ${label}. Consider reducing or spacing those items to see if symptoms improve.`,
+    });
+  }
+
+  if (topFoodSafeDisplay) {
+    summary.push({
+      type: "note",
+      message: `Some foods were not followed by higher-than-usual symptoms within 12 hours (often ${topFoodSafeDisplay}). These may be safer options for you to repeat.`,
     });
   }
 
   if (highSymptomsAfterMeds > 0) {
     summary.push({
       type: "warning",
-      message: "Higher than usual symptom severity occurred ${highSymptomsAfterMeds} time(s) within 24 hours of a logged medication entry in this window.",
+      message: topMedHighDisplay
+        ? `Higher-than-usual symptoms (often ${topMedHighSymptomDisplay || "symptoms"}) occurred after ${topMedHighDisplay}. Consider noting dose timing and missed doses, and discuss with your clinician if it repeats.`
+        : `You had ${highSymptomsAfterMeds} higher-than-usual symptom event(s) after a medication entry. This may be worth discussing with your clinician.`,
     });
   } else {
     summary.push({
       type: "info",
-      message: "No clear medication -> symptom timing pattern detected in this time window.",
+      message: "No clear medication-related pattern was detected in this time window.",
     });
   }
 
   summary.push({
     type: "note",
     message:
-      "Correlations show associations, not medical cause. These insights are to help self-management and clinician discussions.",
+      "These are correlations, not diagnoses. Use them to guide self-care and clinician conversations.",
+  });
+  summary.push({
+    type: "note",
+    message:
+      "Tip: log symptoms when they start and again if they change later in the day to capture patterns.",
+  });
+  summary.push({
+    type: "note",
+    message:
+      "Tip: add simple context (sleep, stress, new foods, missed meds) to make patterns clearer.",
   });
 
   return summary;
+}
+
+function buildAiCards(
+  meta: any,
+  counts: { symptoms: number; foodLogs: number; medicationLogs: number },
+  windowDays: number,
+  riskScore: number | null
+) {
+  // insight cards for patient insights page
+  const cards: any[] = [];
+
+  const confidenceFromEvents = (events: number) => {
+    if (events >= 5) return "HIGH";
+    if (events >= 3) return "MEDIUM";
+    return "LOW";
+  };
+
+  const evidence = {
+    mealsCount: counts.foodLogs,
+    symptomLogsCount: counts.symptoms,
+    medicationLogsCount: counts.medicationLogs,
+    days: windowDays,
+  };
+
+  const riskFoods: string[] = Array.isArray(meta?.riskFoods) ? meta.riskFoods : [];
+  const safeFoods: string[] = Array.isArray(meta?.safeFoods) ? meta.safeFoods : [];
+  const mixedFoods: string[] = Array.isArray(meta?.mixedFoods) ? meta.mixedFoods : [];
+
+  if (riskFoods.length > 0) {
+    cards.push({
+      id: "trigger-foods",
+      title: "Top trigger foods",
+      summary: `These foods are often followed by higher symptoms: ${riskFoods.join(", ")}.`,
+      evidence,
+      confidence: confidenceFromEvents(riskFoods.length),
+      conditions: [],
+      nextStep: "Try a 7‑day break from one item and compare how you feel.",
+    });
+  }
+
+  if (safeFoods.length > 0) {
+    cards.push({
+      id: "safe-foods",
+      title: "Top safe foods",
+      summary: `These foods were not followed by higher symptoms within 12 hours: ${safeFoods.join(
+        ", "
+      )}.`,
+      evidence,
+      confidence: confidenceFromEvents(safeFoods.length),
+      conditions: [],
+      nextStep: "Keep these as go‑to options on flare‑prone days.",
+    });
+  }
+
+  if (mixedFoods.length > 0) {
+    cards.push({
+      id: "unclear-foods",
+      title: "Unclear foods",
+      summary: `These foods are sometimes fine and sometimes not: ${mixedFoods.join(", ")}.`,
+      evidence,
+      confidence: "LOW",
+      conditions: [],
+      nextStep: "Log portion size and time for 2 weeks to clarify the pattern.",
+    });
+  }
+
+  if (counts.medicationLogs > 0) {
+    cards.push({
+      id: "med-consistency",
+      title: "Medication consistency",
+      summary: `You logged medication ${counts.medicationLogs} time(s) in the last ${windowDays} days.`,
+      evidence,
+      confidence: confidenceFromEvents(counts.medicationLogs),
+      conditions: [],
+      nextStep: "Aim for steady timing and fewer missed days if you can.",
+      disclaimer: "This isn’t medical advice—talk to your clinician before changing medication.",
+    });
+  }
+
+  if (typeof riskScore === "number") {
+    const pct = Math.round(Math.max(0, Math.min(1, riskScore)) * 100);
+    const riskLabel = pct >= 65 ? "elevated" : pct >= 35 ? "moderate" : "low";
+    cards.push({
+      id: "flare-risk",
+      title: "Flare risk",
+      summary: `Your flare risk looks ${riskLabel} right now (about ${pct}%).`,
+      evidence,
+      confidence: confidenceFromEvents(counts.symptoms),
+      conditions: [],
+      nextStep: "Choose safe foods, drink water, and avoid known triggers today.",
+    });
+  }
+
+  return cards;
 }
 
 // POST /ai/predict
@@ -274,6 +535,7 @@ async function predictProxy(req: any, res: any) {
         riskScore: null,
         model: null,
         featuresUsed: {},
+        aiCards: [],
         correlationSummary: [
           {
             type: "info",
@@ -294,6 +556,12 @@ async function predictProxy(req: any, res: any) {
       built._internalRows.medRows
     );
 
+    const meta = Array.isArray(symptomTimingSummary)
+      ? symptomTimingSummary.find((s: any) => s && s.type === "meta")
+      : null;
+
+    const aiCards = buildAiCards(meta, built.counts, windowDays, mlResult.riskScore);
+
     await auditAi(req, "AI_INFERENCE_REQUEST", {
       status: "success",
       windowDays,
@@ -309,6 +577,7 @@ async function predictProxy(req: any, res: any) {
       riskScore: mlResult.riskScore,
       model: mlResult.model,
       featuresUsed: mlResult.featuresUsed || {},
+      aiCards,
       correlationSummary: [
         {
           type: "info",
@@ -419,6 +688,19 @@ async function getCorrelations(req: any, res: any) {
       .slice(0, 5)
       .map(([name, count]) => ({ name, count }));
 
+    // Top symptoms
+    const symptomCounts: Record<string, number> = {};
+    for (const r of symptomRows) {
+      const name = r.symptomName?.trim();
+      if (!name) continue;
+      symptomCounts[name] = (symptomCounts[name] || 0) + 1;
+    }
+
+    const topSymptoms = Object.entries(symptomCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count }));
+
     // Symptom timing correlations
     // meds reuse same timing analysis but pass medRows in raw form
     const symptomTimingSummary = buildSymptomTimingCorrelations(
@@ -453,6 +735,7 @@ async function getCorrelations(req: any, res: any) {
       },
       topFoods,
       topMedications,
+      topSymptoms,
       correlationSummary: [
         {
           type: "info",

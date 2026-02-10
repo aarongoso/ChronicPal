@@ -352,11 +352,53 @@ const getMyMedicationLogs = async (req: any, res: any) => {
   }
 };
 
+// DELETE /medications/:id
+// Patient-only delete (strict user isolation + audit)
+const deleteMedicationLog = async (req: any, res: any) => {
+  const userId = req.user?.id;
+  const ip = req.ip;
+
+  try {
+    const id = parseInt(String(req.params.id), 10);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid medication log id." });
+    }
+
+    const row = await MedicationLog.findOne({
+      where: { id, userId },
+      attributes: ["id"],
+    });
+
+    if (!row) {
+      await logAudit(userId, "DELETE_MEDICATION_LOG", ip, {
+        status: "not_found",
+        logId: id,
+      });
+      return res.status(404).json({ error: "Medication log not found." });
+    }
+
+    await MedicationLog.destroy({ where: { id, userId } });
+
+    await logAudit(userId, "DELETE_MEDICATION_LOG", ip, {
+      status: "success",
+      logId: id,
+    });
+
+    return res.json({ message: "Medication log deleted." });
+  } catch (error: any) {
+    await logAudit(userId ?? null, "DELETE_MEDICATION_LOG", ip, {
+      status: "error",
+    });
+    return res.status(500).json({ error: "Failed to delete medication log." });
+  }
+};
+
 module.exports = {
   searchMedication,
   logMedication,
   logMedicationManual,
   getMyMedicationLogs,
+  deleteMedicationLog,
 };
 
 export {};

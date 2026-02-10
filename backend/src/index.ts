@@ -21,6 +21,11 @@ const foodRoutes = require("./routes/FoodRoutes");
 const medicationRoutes = require("./routes/MedicationRoutes");
 const aiRoutes = require("./routes/AiRoutes");
 const symptomRoutes = require("./routes/SymptomRoutes");
+const favouritesRoutes = require("./routes/FavouritesRoutes");
+const frequentItemsRoutes = require("./routes/FrequentItemsRoutes");
+const doctorAccessRoutes = require("./routes/DoctorAccessRoutes");
+const doctorAiSummaryRoutes = require("./routes/DoctorAiSummaryRoutes");
+const personalInsightsRoutes = require("./routes/PersonalInsightsRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -48,9 +53,12 @@ app.use(
 );
 
 // Apply rate limiting to all requests
+// Higher limits in dev to avoid React strict-mode double fetch causing 429s
+const isDev = process.env.NODE_ENV === "development";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15-minute window
-  max: 100, // Limit each IP to 100 requests per window
+  //max: 100, // Limit each IP to 100 requests per window
+  max: isDev ? 300 : 100, // dev-only increase, keep prod strict
   message: { error: "Too many requests, please try again later." },
 });
 app.use(limiter);
@@ -68,6 +76,11 @@ app.use("/food", foodRoutes); // Food logging routes
 app.use("/medications", medicationRoutes); // Medication logging routes
 app.use("/ai", aiRoutes); // AI inference proxy routes (backend -> ML service)
 app.use("/symptoms", symptomRoutes); // Symptom logging routes (patient timeline -> future AI payload building)
+app.use("/favourites", favouritesRoutes); // User favourites (food / medication quick access)
+app.use("/frequent-items", frequentItemsRoutes); // Most frequently logged items
+app.use("/ai", personalInsightsRoutes); // Patient personal insights
+app.use("/doctor-access", doctorAccessRoutes); // Doctor access request + approval workflow
+app.use("/doctor/ai-summaries", doctorAiSummaryRoutes); // Clinician facing AI summaries
 
 // Health check route
 app.get("/health", (_req: any, res: any) => {

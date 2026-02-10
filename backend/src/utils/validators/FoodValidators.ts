@@ -40,6 +40,9 @@ const validateRiskTags = body("riskTags")
       "highFat",
       "caffeine",
       "alcohol",
+      "highSugar",
+      "highSodium",
+      "highIron",
     ];
 
     for (const key of Object.keys(value)) {

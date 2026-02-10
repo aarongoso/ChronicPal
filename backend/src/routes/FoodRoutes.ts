@@ -3,8 +3,18 @@ const router = express.Router();
 
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
 const { externalApiLimiter } = require("../utils/rateLimiters");
-const { validateFoodSearch, validateFoodLog, validateFoodManualLog } = require("../utils/validators/FoodValidators");
-const { searchFood, logFood, logFoodManual, getMyFoodLogs } = require("../controllers/FoodController");
+const {
+  validateFoodSearch,
+  validateFoodLog,
+  validateFoodManualLog,
+} = require("../utils/validators/FoodValidators");
+const {
+  searchFood,
+  logFood,
+  logFoodManual,
+  getMyFoodLogs,
+  deleteFoodLog,
+} = require("../controllers/FoodController");
 
 // Patient only food search
 router.get(
@@ -21,7 +31,7 @@ router.post(
   "/log",
   authenticateToken,
   authorizeRoles(["patient"]),
-  externalApiLimiter,
+//  externalApiLimiter,
   validateFoodLog,
   logFood
 );
@@ -42,6 +52,14 @@ router.get(
   authenticateToken,
   authorizeRoles(["patient"]),
   getMyFoodLogs
+);
+
+// Patient only delete own food log
+router.delete(
+  "/:id",
+  authenticateToken,
+  authorizeRoles(["patient"]),
+  deleteFoodLog
 );
 
 module.exports = router;

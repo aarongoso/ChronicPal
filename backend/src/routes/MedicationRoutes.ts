@@ -16,6 +16,7 @@ const {
   logMedication,
   logMedicationManual,
   getMyMedicationLogs,
+  deleteMedicationLog,
 } = require("../controllers/MedicationController");
 
 // Patient only medication search
@@ -35,7 +36,7 @@ router.post(
   "/log",
   authenticateToken,
   authorizeRoles(["patient"]),
-  externalApiLimiter,
+  //externalApiLimiter,
   validateMedicationLog,
   logMedication
 );
@@ -57,6 +58,14 @@ router.get(
   authorizeRoles(["patient"]),
   validateMedicationMyLogs,
   getMyMedicationLogs
+);
+
+// patient only delete own medication log
+router.delete(
+  "/:id",
+  authenticateToken,
+  authorizeRoles(["patient"]),
+  deleteMedicationLog
 );
 
 module.exports = router;

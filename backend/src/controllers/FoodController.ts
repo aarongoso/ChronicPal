@@ -327,6 +327,47 @@ const getMyFoodLogs = async (req: any, res: any) => {
   }
 };
 
-module.exports = { searchFood, logFood, logFoodManual, getMyFoodLogs };
+// DELETE /food/:id
+// Patient-only delete (strict user isolation + audit)
+const deleteFoodLog = async (req: any, res: any) => {
+  const userId = req.user?.id;
+  const ip = req.ip;
+
+  try {
+    const id = parseInt(String(req.params.id), 10);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid food log id." });
+    }
+
+    const row = await FoodLog.findOne({
+      where: { id, userId },
+      attributes: ["id"],
+    });
+
+    if (!row) {
+      await logAudit(userId, "DELETE_FOOD_LOG", ip, {
+        status: "not_found",
+        logId: id,
+      });
+      return res.status(404).json({ error: "Food log not found." });
+    }
+
+    await FoodLog.destroy({ where: { id, userId } });
+
+    await logAudit(userId, "DELETE_FOOD_LOG", ip, {
+      status: "success",
+      logId: id,
+    });
+
+    return res.json({ message: "Food log deleted." });
+  } catch (error: any) {
+    await logAudit(userId ?? null, "DELETE_FOOD_LOG", ip, {
+      status: "error",
+    });
+    return res.status(500).json({ error: "Failed to delete food log." });
+  }
+};
+
+module.exports = { searchFood, logFood, logFoodManual, getMyFoodLogs, deleteFoodLog };
 
 export {};

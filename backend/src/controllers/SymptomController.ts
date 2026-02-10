@@ -120,6 +120,47 @@ const getMySymptomLogs = async (req: any, res: any) => {
   }
 };
 
-module.exports = { logSymptom, getMySymptomLogs };
+// DELETE /symptoms/:id
+// Patient-only delete (strict user isolation + audit)
+const deleteSymptomLog = async (req: any, res: any) => {
+  const userId = req.user?.id;
+  const ip = req.ip;
+
+  try {
+    const id = parseInt(String(req.params.id), 10);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid symptom log id." });
+    }
+
+    const row = await SymptomLog.findOne({
+      where: { id, userId },
+      attributes: ["id"],
+    });
+
+    if (!row) {
+      await logAudit(userId, "DELETE_SYMPTOM_LOG", ip, {
+        status: "not_found",
+        logId: id,
+      });
+      return res.status(404).json({ error: "Symptom log not found." });
+    }
+
+    await SymptomLog.destroy({ where: { id, userId } });
+
+    await logAudit(userId, "DELETE_SYMPTOM_LOG", ip, {
+      status: "success",
+      logId: id,
+    });
+
+    return res.json({ message: "Symptom log deleted." });
+  } catch (error: any) {
+    await logAudit(userId ?? null, "DELETE_SYMPTOM_LOG", ip, {
+      status: "error",
+    });
+    return res.status(500).json({ error: "Failed to delete symptom log." });
+  }
+};
+
+module.exports = { logSymptom, getMySymptomLogs, deleteSymptomLog };
 
 export {};
