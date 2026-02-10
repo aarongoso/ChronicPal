@@ -11,6 +11,8 @@ import AdminRoute from "./components/AdminRoute";
 import Navbar from "./components/Navbar"; // role aware navbar
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import Insights from "./pages/Insights";
+import DailyLog from "./pages/DailyLog";
 
 // Main App navigation between Login, Register, Logout, and File Upload
 // Acts as the root of the frontend authentication system
@@ -39,6 +41,27 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* ------ PATIENT INSIGHTS ---------- */}
+        <Route
+          path="/patient/insights"
+          element={
+            <ProtectedRoute>
+              <Insights />
+            </ProtectedRoute>
+          }
+        />
+
+       {/* -------- DAILY LOG ------------ */}
+        <Route
+          path="/patient/log"
+          element={
+            <ProtectedRoute>
+              <DailyLog />
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* --------------- DOCTOR ROUTE ------------*/}
         <Route

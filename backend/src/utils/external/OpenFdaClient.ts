@@ -27,6 +27,9 @@ const openFdaSearch = async (q: string) => {
 
     return resp.data;
   } catch (err: any) {
+    if (err?.response?.status === 404) {
+      return null;
+    }
     // return null so controller can fallback to DailyMed
     console.error("OpenFDA search error:", err?.message);
     return null;

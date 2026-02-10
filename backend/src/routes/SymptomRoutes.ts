@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
 const { validateSymptomLog, validateSymptomLogQuery } = require("../utils/validators/SymptomValidators");
-const { logSymptom, getMySymptomLogs } = require("../controllers/SymptomController");
+const { logSymptom, getMySymptomLogs, deleteSymptomLog } = require("../controllers/SymptomController");
 
 // patient only symptom logging
 router.post(
@@ -20,6 +20,14 @@ router.get(
   authorizeRoles(["patient"]),
   validateSymptomLogQuery,
   getMySymptomLogs
+);
+
+// patient only delete own symptom log
+router.delete(
+  "/:id",
+  authenticateToken,
+  authorizeRoles(["patient"]),
+  deleteSymptomLog
 );
 
 module.exports = router;

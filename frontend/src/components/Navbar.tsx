@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import notificationIcon from "../icons/notification.png";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -61,6 +62,18 @@ const Navbar: React.FC = () => {
     </button>
   );
 
+  const NotificationBell = () => (
+    <button
+      onClick={() =>
+        alert("Notifications placeholder TODO")
+      }
+      className="px-2 py-1 rounded hover:bg-slate-800"
+      title="Notifications"
+    >
+      <img src={notificationIcon} alt="" className="h-5 w-5" />
+    </button>
+  );
+
   // PATIENT NAVBAR ---------------------------
   if (role === "patient") {
     return (
@@ -83,6 +96,13 @@ const Navbar: React.FC = () => {
             </button>
 
             <button
+              onClick={() => navigate("/patient/insights")}
+              className="hover:bg-slate-800 px-2.5 py-1 rounded"
+            >
+              Insights
+            </button>
+
+            <button
               onClick={() => navigate("/patient/appointments")}
               className="hover:bg-slate-800 px-2.5 py-1 rounded"
             >
@@ -90,17 +110,14 @@ const Navbar: React.FC = () => {
             </button>
             
             <button
-              onClick={() =>
-                alert(
-                  "Notifications placeholder — will be implemented with Socket.io after midpoint"
-                )
-              }
+              onClick={() => navigate("/patient/log?tab=symptoms")}
               className="hover:bg-slate-800 px-2.5 py-1 rounded"
             >
-              Notifications
+              Daily Log
             </button>
 
             <SecureFilesButton />
+            <NotificationBell />
 
             <button
               onClick={handleLogout}
@@ -161,6 +178,7 @@ const Navbar: React.FC = () => {
             </button>
 
             <SecureFilesButton />
+            <NotificationBell />
 
             <button
               onClick={handleLogout}
@@ -217,6 +235,7 @@ const Navbar: React.FC = () => {
             </button>
 
             <SecureFilesButton />
+            <NotificationBell />
 
             <button
               onClick={handleLogout}

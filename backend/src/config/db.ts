@@ -6,6 +6,8 @@ const initAuditLogModel = require("../models/AuditLogModel");
 const initFoodLogModel = require("../models/FoodLogModel");
 const initMedicationLogModel = require("../models/MedicationLogModel");
 const initSymptomLogModel = require("../models/SymptomLogModel");
+const initFavouriteModel = require("../models/FavouriteModel");
+const initDoctorPatientAssignmentModel = require("../models/DoctorPatientAssignmentModel");
 
 // Sequelize ORM connects to MySQL database and synchronizes all models
 export const sequelize = new Sequelize(
@@ -26,6 +28,8 @@ export const AuditLog = initAuditLogModel(sequelize);
 export const FoodLog = initFoodLogModel(sequelize);
 export const MedicationLog = initMedicationLogModel(sequelize);
 export const SymptomLog = initSymptomLogModel(sequelize); // symptom -> flare-up AI + food/med correlations
+export const Favourite = initFavouriteModel(sequelize);
+export const DoctorPatientAssignment = initDoctorPatientAssignmentModel(sequelize);
 
 // Define relationships
 // Audit logs link back to users
@@ -43,6 +47,14 @@ User.hasMany(MedicationLog, { foreignKey: "userId" });
 // Symptom logs belong to patient users (required for flare-up prediction + symptom correlations)
 SymptomLog.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
 User.hasMany(SymptomLog, { foreignKey: "userId" });
+
+// Favourites belong to patient users
+Favourite.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
+User.hasMany(Favourite, { foreignKey: "userId" });
+
+// Doctor/patient access assignments (consent-based: patient requests, doctor accepts)
+DoctorPatientAssignment.belongsTo(User, { foreignKey: "doctorId", onDelete: "CASCADE" });
+DoctorPatientAssignment.belongsTo(User, { foreignKey: "patientId", onDelete: "CASCADE" });
 
 // Connects to MySQL database and synchronizes all models
 export const connectDB = async () => {
