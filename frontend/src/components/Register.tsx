@@ -72,12 +72,23 @@ function Register() {
           <p className="text-xs text-gray-500 mb-1">
             Are you a doctor?
           </p>
+          <p className="text-xs text-gray-500 mb-2">
+            After admin approval you'll receive an activation token from the admin
+          </p>
           <Link
             to="/doctor-request"
             className="text-sm text-blue-600 hover:underline"
           >
             Request a Doctor Account
           </Link>
+          <div className="mt-2">
+            <Link
+              to="/doctor-activation"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Activate doctor account
+            </Link>
+          </div>
         </div>
       </form>
     </div>

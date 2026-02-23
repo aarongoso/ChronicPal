@@ -1,7 +1,8 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
-const { AuditLog, User } = require("../config/Db");
+const { AuditLog, User, DoctorAccountRequest } = require("../config/Db");
+const { logAudit } = require("../utils/auditLogger");
 
 const router = express.Router();
 
@@ -76,6 +77,47 @@ router.get(
       return res
         .status(500)
         .json({ error: "Failed to retrieve audit logs. Please try again." });
+    }
+  }
+);
+
+/**
+ * GET /admin/stats
+ * Returns system counts users, patients, doctors, admins and pending requests (admin only)
+ */
+router.get(
+  "/stats",
+  authenticateToken,
+  authorizeRoles(["admin"]),
+  async (req: any, res: any) => {
+    try {
+      const totalUsers = await User.count();
+      const totalDoctors = await User.count({ where: { role: "doctor" } });
+      const totalPatients = await User.count({ where: { role: "patient" } });
+      const totalAdmins = await User.count({ where: { role: "admin" } });
+      const pendingDoctorRequests = await DoctorAccountRequest.count({
+        where: { status: "PENDING" },
+      });
+
+      const adminId = req.user?.id || null;
+      await logAudit(adminId, "ADMIN_STATS_VIEW", req.ip, {
+        totalUsers,
+        totalDoctors,
+        totalPatients,
+        totalAdmins,
+        pendingDoctorRequests,
+      });
+
+      return res.status(200).json({
+        totalUsers,
+        totalDoctors,
+        totalPatients,
+        totalAdmins,
+        pendingDoctorRequests,
+      });
+    } catch (error: any) {
+      console.error("Error fetching admin stats:", error);
+      return res.status(500).json({ error: "Failed to load admin stats." });
     }
   }
 );
