@@ -8,6 +8,7 @@ const initMedicationLogModel = require("../models/MedicationLogModel");
 const initSymptomLogModel = require("../models/SymptomLogModel");
 const initFavouriteModel = require("../models/FavouriteModel");
 const initDoctorPatientAssignmentModel = require("../models/DoctorPatientAssignmentModel");
+const initDoctorAccountRequestModel = require("../models/DoctorAccountRequestModel");
 
 // Sequelize ORM connects to MySQL database and synchronizes all models
 export const sequelize = new Sequelize(
@@ -30,6 +31,7 @@ export const MedicationLog = initMedicationLogModel(sequelize);
 export const SymptomLog = initSymptomLogModel(sequelize); // symptom -> flare-up AI + food/med correlations
 export const Favourite = initFavouriteModel(sequelize);
 export const DoctorPatientAssignment = initDoctorPatientAssignmentModel(sequelize);
+export const DoctorAccountRequest = initDoctorAccountRequestModel(sequelize);
 
 // Define relationships
 // Audit logs link back to users

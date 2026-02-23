@@ -13,6 +13,10 @@ import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import Insights from "./pages/Insights";
 import DailyLog from "./pages/DailyLog";
+import DoctorRequest from "./pages/DoctorRequest";
+import DoctorActivation from "./pages/DoctorActivation";
+import AdminDoctorRequests from "./pages/AdminDoctorRequests";
+import AdminDoctorRequestDetail from "./pages/AdminDoctorRequestDetail";
 
 // Main App navigation between Login, Register, Logout, and File Upload
 // Acts as the root of the frontend authentication system
@@ -31,6 +35,8 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/doctor-request" element={<DoctorRequest />} />
+        <Route path="/doctor-activation" element={<DoctorActivation />} />
 
         {/* -------- PATIENT ROUTE ------------ */}
         <Route
@@ -89,6 +95,32 @@ function App() {
           element={
             <AdminRoute>
               <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        
+        <Route
+          path="/admin/audit-logs"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/doctor-requests"
+          element={
+            <AdminRoute>
+              <AdminDoctorRequests />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/doctor-requests/:id"
+          element={
+            <AdminRoute>
+              <AdminDoctorRequestDetail />
             </AdminRoute>
           }
         />

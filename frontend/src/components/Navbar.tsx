@@ -214,17 +214,10 @@ const Navbar: React.FC = () => {
             </button>
 
             <button
-              onClick={() => navigate("/admin?view=doctorRequests")}
+              onClick={() => navigate("/admin/doctor-requests")}
               className="hover:bg-slate-800 px-2.5 py-1 rounded"
             >
               Doctor Requests
-            </button>
-
-            <button
-              onClick={() => navigate("/admin?view=userManagement")}
-              className="hover:bg-slate-800 px-2.5 py-1 rounded"
-            >
-              Users & Roles
             </button>
 
             <button

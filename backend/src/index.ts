@@ -26,6 +26,7 @@ const frequentItemsRoutes = require("./routes/FrequentItemsRoutes");
 const doctorAccessRoutes = require("./routes/DoctorAccessRoutes");
 const doctorAiSummaryRoutes = require("./routes/DoctorAiSummaryRoutes");
 const personalInsightsRoutes = require("./routes/PersonalInsightsRoutes");
+const doctorAccountRequestRoutes = require("./routes/DoctorAccountRequestRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -81,6 +82,7 @@ app.use("/frequent-items", frequentItemsRoutes); // Most frequently logged items
 app.use("/ai", personalInsightsRoutes); // Patient personal insights
 app.use("/doctor-access", doctorAccessRoutes); // Doctor access request + approval workflow
 app.use("/doctor/ai-summaries", doctorAiSummaryRoutes); // Clinician facing AI summaries
+app.use("/", doctorAccountRequestRoutes); // Doctor onboarding (public + admin + activation)
 
 // Health check route
 app.get("/health", (_req: any, res: any) => {
