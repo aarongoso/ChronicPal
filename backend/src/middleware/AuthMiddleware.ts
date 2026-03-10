@@ -17,11 +17,36 @@ const authenticateToken = (req: any, res: any, next: any) => {
   try {
     // Verify token and extract payload
     const payload = jwt.verify(token, process.env.JWT_SECRET);
+    // Setup tokens are intentionally blocked from normal app routes so they
+    // cannot be reused as if they were a full authenticated session
+    if (payload?.mfaSetupPending) {
+      return res.status(403).json({ error: "MFA setup must be completed first." });
+    }
     req.user = payload; // store decoded user data for later
     next();
   } catch (error: any) {
     console.error('Token verification failed:', error);
     return res.status(403).json({ error: 'Invalid or expired token.' });
+  }
+};
+
+const authenticateMfaSetupOrAccessToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ error: "Access token missing or invalid." });
+  }
+
+  try {
+    // This variant is only for the MFA setup endpoints, where a short lived
+    // setup token is allowed before full access/refresh tokens are issued
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = payload;
+    next();
+  } catch (error: any) {
+    console.error("Token verification failed:", error);
+    return res.status(403).json({ error: "Invalid or expired token." });
   }
 };
 
@@ -44,6 +69,6 @@ const authorizeRoles = (allowedRoles: string[]) => {
   };
 };
 
-module.exports = { authenticateToken, authorizeRoles };
+module.exports = { authenticateToken, authorizeRoles, authenticateMfaSetupOrAccessToken };
 
 export {};

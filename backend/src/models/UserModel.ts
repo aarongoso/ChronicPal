@@ -31,6 +31,53 @@ const initUserModel = (sequelize: any) => {
         allowNull: false,
         defaultValue: "patient", // default role for any registered user
       },
+
+      mfaEnabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+
+      mfaSecretCiphertext: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+
+      mfaSecretIv: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      mfaSecretTag: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      mfaTempSecretCiphertext: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+
+      mfaTempSecretIv: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      mfaTempSecretTag: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      mfaFailedAttempts: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        defaultValue: 0,
+      },
+
+      mfaLockUntil: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       sequelize,

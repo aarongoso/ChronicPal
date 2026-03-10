@@ -43,6 +43,22 @@ api.interceptors.request.use((config) => {
 // https://axios-http.com/docs/interceptors
 async function handleRefresh(err: any) {
   const original = err.config;
+  const url = original?.url || "";
+
+  // Auth step endpoints shouldnt trigger refresh token flow
+  if (
+    url.includes("/auth/login") ||
+    url.includes("/auth/register") ||
+    url.includes("/auth/mfa/verify") ||
+    url.includes("/auth/mfa/setup/initiate") ||
+    url.includes("/auth/mfa/setup/verify")
+  ) {
+    return Promise.reject({
+      error: err.response?.data?.error || "Authentication failed.",
+      status: err.response?.status,
+      data: err.response?.data,
+    });
+  }
 
   // If backend rate-limits (429), do NOT attempt refresh
   // retry loops spam requests
@@ -82,8 +98,9 @@ async function handleRefresh(err: any) {
   }
 
   return Promise.reject({
-    error: "An error occurred. Please try again.",
+    error: err.response?.data?.error || "An error occurred. Please try again.",
     status: err.response?.status,
+    data: err.response?.data,
   });
 }
 
@@ -111,6 +128,17 @@ export const uploadFile = async (file: File) => {
 
   return response.data;
 };
+
+export const getCurrentUser = async () => {
+  const response = await api.get("/auth/me");
+  return response.data;
+};
+
+export const disableMfa = async (payload: { code: string; password?: string }) => {
+  const response = await api.post("/auth/mfa/disable", payload);
+  return response.data;
+};
+
 // ----------- AI ------------
 // Personal Insights (patient only)
 export const getPersonalInsights = async (days: number) => {

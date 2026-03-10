@@ -17,6 +17,8 @@ import DoctorRequest from "./pages/DoctorRequest";
 import DoctorActivation from "./pages/DoctorActivation";
 import AdminDoctorRequests from "./pages/AdminDoctorRequests";
 import AdminDoctorRequestDetail from "./pages/AdminDoctorRequestDetail";
+import MfaSetup from "./pages/MfaSetup";
+import PatientProfile from "./pages/PatientProfile";
 
 // Main App navigation between Login, Register, Logout, and File Upload
 // Acts as the root of the frontend authentication system
@@ -37,6 +39,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/doctor-request" element={<DoctorRequest />} />
         <Route path="/doctor-activation" element={<DoctorActivation />} />
+        <Route path="/mfa/setup" element={<MfaSetup />} />
 
         {/* -------- PATIENT ROUTE ------------ */}
         <Route
@@ -44,6 +47,15 @@ function App() {
           element={
             <ProtectedRoute>
               <PatientDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/patient/profile"
+          element={
+            <ProtectedRoute>
+              <PatientProfile />
             </ProtectedRoute>
           }
         />

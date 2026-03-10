@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User } = require("../config/Db"); 
+const { User } = require("../config/db"); 
 const { logAudit } = require("../utils/AuditLogger");
 
 /**

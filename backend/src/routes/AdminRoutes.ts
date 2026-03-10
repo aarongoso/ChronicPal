@@ -1,7 +1,7 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
-const { AuditLog, User, DoctorAccountRequest } = require("../config/Db");
+const { AuditLog, User, DoctorAccountRequest } = require("../config/db");
 const { logAudit } = require("../utils/auditLogger");
 
 const router = express.Router();
