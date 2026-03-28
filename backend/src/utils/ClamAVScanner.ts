@@ -13,9 +13,10 @@ const path = require("path");
 // CLAMAV_PATH="C:\\ClamAV\\clamscan.exe"
 // keep flexible in case of deployment differences
 const CLAM_PATH = process.env.CLAMAV_PATH || "clamscan.exe";
+const CLAM_SCAN_TIMEOUT_MS = 30000;
 
 // Writes file to OS temp folder, scans it using ClamAV CLI, deletes after scan
-// Returns: { infected: boolean, result: string }
+// Returns: { infected: boolean, scanFailed: boolean, result: string }
 async function scanWithClamAV(buffer: Buffer, originalName: string) {
     return new Promise((resolve) => {
         try {
@@ -32,14 +33,21 @@ async function scanWithClamAV(buffer: Buffer, originalName: string) {
             fs.writeFileSync(tempFilePath, buffer);
 
             // Run clamscan.exe on the file
-            execFile(CLAM_PATH, [tempFilePath], (error: any, stdout: string) => {
+            execFile(
+                CLAM_PATH,
+                [tempFilePath],
+                { timeout: CLAM_SCAN_TIMEOUT_MS },
+                (error: any, stdout: string) => {
                 let infected = false;
+                let scanFailed = false;
 
                 // According to ClamAV docs:
                 // Exit code 0 > OK
                 // Exit code 1 > Infected
                 if (error && error.code === 1) {
                     infected = true;
+                } else if (error) {
+                    scanFailed = true;
                 }
 
                 // delete temporary plaintext
@@ -52,15 +60,17 @@ async function scanWithClamAV(buffer: Buffer, originalName: string) {
 
                 return resolve({
                     infected,
+                    scanFailed,
                     result: stdout,
                 });
             });
         } catch (err: any) {
             console.error("Antivirus scan failed:", err?.message);
 
-            // Fallback: scanning failed but not necessarily infected
+            // Fail closed: if scanning cannot complete safely, block upload
             return resolve({
                 infected: false,
+                scanFailed: true,
                 result: "SCAN_FAILED",
             });
         }

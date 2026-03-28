@@ -287,6 +287,52 @@ router.get(
 );
 
 /**
+ * DOCTOR: List active assigned patients for this doctor
+ * GET /doctor-access/assigned
+ * patient email for easy identification
+ */
+router.get(
+  "/assigned",
+  authenticateToken,
+  authorizeRoles(["doctor"]),
+  async (req: any, res: any) => {
+    const doctorId = req.user.id;
+
+    try {
+      const assignments = await DoctorPatientAssignment.findAll({
+        where: { doctorId, status: "ACTIVE" },
+        attributes: ["id", "patientId", "status", "updatedAt"],
+        order: [["updatedAt", "DESC"]],
+      });
+
+      const patientIds = assignments.map((a: any) => a.patientId);
+
+      const patients = await User.findAll({
+        where: { id: patientIds },
+        attributes: ["id", "email"],
+      });
+
+      const patientEmailMap: any = {};
+      patients.forEach((p: any) => {
+        patientEmailMap[p.id] = p.email;
+      });
+
+      const result = assignments.map((a: any) => ({
+        id: a.id,
+        patientId: a.patientId,
+        patientEmail: patientEmailMap[a.patientId] || null,
+        status: a.status,
+        updatedAt: a.updatedAt,
+      }));
+
+      return res.json({ assignments: result });
+    } catch (error: any) {
+      return res.status(500).json({ error: "Failed to list assigned patients." });
+    }
+  }
+);
+
+/**
  * DOCTOR: Accept a request
  * POST /doctor-access/requests/:id/accept
  */

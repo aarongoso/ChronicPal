@@ -9,12 +9,12 @@ const path = require("path");
 const keyHex = process.env.FILE_ENCRYPTION_KEY;
 
 if (!keyHex || keyHex.length !== 64) {
-  console.warn(
-    "Warning: FILE_ENCRYPTION_KEY is missing or not 32 bytes in hex. Encryption will not be secure until this is set."
+  throw new Error(
+    "FILE_ENCRYPTION_KEY must be set to a 64 character hex string."
   );
 }
 
-const ENCRYPTION_KEY = keyHex ? Buffer.from(keyHex, "hex") : crypto.randomBytes(32);
+const ENCRYPTION_KEY = Buffer.from(keyHex, "hex");
 
 // Directory where encrypted files will be stored
 const ENCRYPTED_DIR = path.join(__dirname, "..", "..", "encrypted_uploads");
@@ -43,8 +43,27 @@ function encryptAndSaveFile(buffer: Buffer, originalName: string): string {
   return storedFileName;
 }
 
+function decryptStoredFile(storedFileName: string): Buffer {
+  const fullPath = path.join(ENCRYPTED_DIR, storedFileName);
+  const payload = fs.readFileSync(fullPath);
+
+  if (payload.length < 29) {
+    throw new Error("Encrypted file payload is invalid.");
+  }
+
+  const iv = payload.subarray(0, 12);
+  const authTag = payload.subarray(12, 28);
+  const encrypted = payload.subarray(28);
+
+  const decipher = crypto.createDecipheriv("aes-256-gcm", ENCRYPTION_KEY, iv);
+  decipher.setAuthTag(authTag);
+
+  return Buffer.concat([decipher.update(encrypted), decipher.final()]);
+}
+
 module.exports = {
   encryptAndSaveFile,
+  decryptStoredFile,
   ENCRYPTED_DIR,
 };
 

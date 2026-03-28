@@ -1,6 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAiPrediction, getPersonalInsights } from "../services/Api";
+import {
+  getAiPrediction,
+  getDoctorAccessAssignments,
+  getPersonalInsights,
+  requestDoctorAccess,
+  revokeDoctorAccess,
+} from "../services/Api";
 
 
 type CountItem = { name: string; count: number };
@@ -46,11 +52,24 @@ type AiPredictResponse = {
   correlationSummary?: Array<{ type: string; message: string }>;
 };
 
+type DoctorAccessAssignment = {
+  id: number;
+  doctorId: number;
+  doctorEmail: string | null;
+  status: "PENDING" | "ACTIVE" | "REVOKED";
+  createdAt: string;
+  updatedAt: string;
+};
+
 function PatientDashboard() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [doctorEmail, setDoctorEmail] = useState<string>("");
+  const [doctorAccessStatus, setDoctorAccessStatus] = useState<string>("");
+  const [assignments, setAssignments] = useState<DoctorAccessAssignment[]>([]);
+  const [loadingAssignments, setLoadingAssignments] = useState<boolean>(true);
 
   const [insights, setInsights] = useState<PersonalInsightsResponse | null>(null);
   const [ai, setAi] = useState<AiPredictResponse | null>(null);
@@ -145,6 +164,22 @@ function PatientDashboard() {
     };
   }, [navigate]);
 
+  const loadAssignments = async () => {
+    try {
+      setLoadingAssignments(true);
+      const res = await getDoctorAccessAssignments();
+      setAssignments(res.assignments || []);
+    } catch (err: any) {
+      setDoctorAccessStatus("Could not load doctor access right now.");
+    } finally {
+      setLoadingAssignments(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAssignments();
+  }, []);
+
   const riskPct = useMemo(() => {
     const raw = ai?.riskScore;
     if (typeof raw !== "number" || !Number.isFinite(raw)) return null;
@@ -183,6 +218,32 @@ function PatientDashboard() {
     if (avg <= 6) return "Some ups and downs";
     return "Unstable";
   }, [insights]);
+
+  const handleDoctorAccessRequest = async () => {
+    if (!doctorEmail.trim()) {
+      setDoctorAccessStatus("Enter a doctor email first.");
+      return;
+    }
+
+    try {
+      const res = await requestDoctorAccess(doctorEmail.trim());
+      setDoctorEmail("");
+      setDoctorAccessStatus(res.message || "Doctor access request sent.");
+      await loadAssignments();
+    } catch (err: any) {
+      setDoctorAccessStatus(err?.error || "Could not send doctor access request.");
+    }
+  };
+
+  const handleRevokeAccess = async (assignmentId: number) => {
+    try {
+      const res = await revokeDoctorAccess(assignmentId);
+      setDoctorAccessStatus(res.message || "Doctor access revoked.");
+      await loadAssignments();
+    } catch (err: any) {
+      setDoctorAccessStatus(err?.error || "Could not revoke doctor access.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
@@ -368,6 +429,64 @@ function PatientDashboard() {
           <p className="text-xs text-slate-400 mt-3">
             AI analysis is informational only and does not replace professional medical advice.
           </p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow md:col-span-2">
+          <h2 className="text-lg font-semibold mb-2">Doctor Access</h2>
+          <p className="text-sm text-slate-600 mt-1 mb-4">
+            Request access for a doctor by email so they can review your records when approved.
+          </p>
+
+          <div className="flex flex-col md:flex-row gap-3 mb-4">
+            <input
+              type="email"
+              value={doctorEmail}
+              onChange={(e) => setDoctorEmail(e.target.value)}
+              placeholder="Doctor email"
+              className="border rounded px-3 py-2 text-sm flex-1"
+            />
+            <button
+              className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+              onClick={handleDoctorAccessRequest}
+            >
+              Request Access
+            </button>
+          </div>
+
+          {doctorAccessStatus ? (
+            <p className="text-sm text-slate-700 mb-4">{doctorAccessStatus}</p>
+          ) : null}
+
+          {loadingAssignments ? (
+            <p className="text-sm text-slate-600">Loading doctor access...</p>
+          ) : assignments.length === 0 ? (
+            <p className="text-sm text-slate-600">No doctor access requests yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {assignments.map((assignment) => (
+                <div
+                  key={assignment.id}
+                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border rounded-lg p-3"
+                >
+                  <div>
+                    <p className="font-medium">{assignment.doctorEmail || `Doctor #${assignment.doctorId}`}</p>
+                    <p className="text-xs text-slate-500">
+                      Status: {assignment.status} | Updated {new Date(assignment.updatedAt).toLocaleString()}
+                    </p>
+                  </div>
+
+                  {assignment.status !== "REVOKED" ? (
+                    <button
+                      className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                      onClick={() => handleRevokeAccess(assignment.id)}
+                    >
+                      Revoke
+                    </button>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ---- Notifications---- */}

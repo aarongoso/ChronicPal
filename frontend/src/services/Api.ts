@@ -9,6 +9,7 @@ const api = axios.create({
 });
 
 // Avoid duplicate in-flight calls (helps dev-mode double-invokes and rate limits)
+// same key = same promise, so repeated UI calls reuse one request instead of spamming backend
 const inFlight: Partial<Record<string, Promise<any>>> = {};
 const dedupe = (key: string, fn: () => Promise<any>) => {
   if (inFlight[key]) return inFlight[key]!;
@@ -27,6 +28,7 @@ const SYM_BASE = "/symptoms";
 api.interceptors.request.use((config) => {
   const csrfToken = getCookie("XSRF-TOKEN");
   if (csrfToken) {
+    // CSRF token is sent in a header so backend can validate cookie + header pair
     config.headers["X-CSRF-TOKEN"] = csrfToken;
   }
 
@@ -116,9 +118,13 @@ function getCookie(name: string) {
     ?.split("=")[1];
 }
 
-export const uploadFile = async (file: File) => {
+export const uploadFile = async (file: File, ownerPatientId?: number) => {
   const formData = new FormData();
   formData.append("file", file);
+
+  if (ownerPatientId) {
+    formData.append("ownerPatientId", String(ownerPatientId));
+  }
 
   const response = await api.post("/files/upload", formData, {
     headers: {
@@ -126,6 +132,59 @@ export const uploadFile = async (file: File) => {
     },
   });
 
+  return response.data;
+};
+
+export const listFiles = async () => {
+  const response = await api.get("/files/list");
+  return response.data;
+};
+
+export const downloadFile = async (fileId: number) => {
+  const response = await api.get(`/files/download/${fileId}`, {
+    responseType: "blob", // file download must come back as binary, not JSON
+  });
+
+  return response.data;
+};
+
+export const deleteFile = async (fileId: number) => {
+  const response = await api.delete(`/files/delete/${fileId}`);
+  return response.data;
+};
+
+export const requestDoctorAccess = async (doctorEmail: string) => {
+  const response = await api.post("/doctor-access/request", { doctorEmail });
+  return response.data;
+};
+
+export const getDoctorAccessAssignments = async () => {
+  const response = await api.get("/doctor-access");
+  return response.data;
+};
+
+export const revokeDoctorAccess = async (assignmentId: number) => {
+  const response = await api.delete(`/doctor-access/${assignmentId}`);
+  return response.data;
+};
+
+export const getDoctorAccessRequests = async () => {
+  const response = await api.get("/doctor-access/requests");
+  return response.data;
+};
+
+export const getDoctorAssignedPatients = async () => {
+  const response = await api.get("/doctor-access/assigned");
+  return response.data;
+};
+
+export const acceptDoctorAccessRequest = async (assignmentId: number) => {
+  const response = await api.post(`/doctor-access/requests/${assignmentId}/accept`);
+  return response.data;
+};
+
+export const rejectDoctorAccessRequest = async (assignmentId: number) => {
+  const response = await api.post(`/doctor-access/requests/${assignmentId}/reject`);
   return response.data;
 };
 

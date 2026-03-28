@@ -9,6 +9,7 @@ const initSymptomLogModel = require("../models/SymptomLogModel");
 const initFavouriteModel = require("../models/FavouriteModel");
 const initDoctorPatientAssignmentModel = require("../models/DoctorPatientAssignmentModel");
 const initDoctorAccountRequestModel = require("../models/DoctorAccountRequestModel");
+const initFileRecordModel = require("../models/FileRecordModel");
 
 // Sequelize ORM connects to MySQL database and synchronizes all models
 export const sequelize = new Sequelize(
@@ -32,6 +33,7 @@ export const SymptomLog = initSymptomLogModel(sequelize); // symptom -> flare-up
 export const Favourite = initFavouriteModel(sequelize);
 export const DoctorPatientAssignment = initDoctorPatientAssignmentModel(sequelize);
 export const DoctorAccountRequest = initDoctorAccountRequestModel(sequelize);
+export const FileRecord = initFileRecordModel(sequelize);
 
 // Define relationships
 // Audit logs link back to users
@@ -57,6 +59,16 @@ User.hasMany(Favourite, { foreignKey: "userId" });
 // Doctor/patient access assignments (consent-based: patient requests, doctor accepts)
 DoctorPatientAssignment.belongsTo(User, { foreignKey: "doctorId", onDelete: "CASCADE" });
 DoctorPatientAssignment.belongsTo(User, { foreignKey: "patientId", onDelete: "CASCADE" });
+
+// Secure file metadata belongs to users for ownership, upload tracking, and soft delete auditing
+FileRecord.belongsTo(User, { as: "ownerPatient", foreignKey: "ownerPatientId", onDelete: "CASCADE" });
+User.hasMany(FileRecord, { as: "ownedFiles", foreignKey: "ownerPatientId" });
+
+FileRecord.belongsTo(User, { as: "uploadedByUser", foreignKey: "uploadedByUserId", onDelete: "CASCADE" });
+User.hasMany(FileRecord, { as: "uploadedFiles", foreignKey: "uploadedByUserId" });
+
+FileRecord.belongsTo(User, { as: "deletedByUser", foreignKey: "deletedByUserId", onDelete: "SET NULL" });
+User.hasMany(FileRecord, { as: "deletedFiles", foreignKey: "deletedByUserId" });
 
 // Connects to MySQL database and synchronizes all models
 export const connectDB = async () => {

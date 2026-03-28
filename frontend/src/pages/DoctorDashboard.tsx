@@ -1,7 +1,34 @@
-import React from "react";
-// no functionality yet only designed for midpoint demo
+import React, { useEffect, useState } from "react";
+import {
+  acceptDoctorAccessRequest,
+  getDoctorAssignedPatients,
+  getDoctorAccessRequests,
+  rejectDoctorAccessRequest,
+} from "../services/Api";
+
+type AssignedPatient = {
+  id: number;
+  patientId: number;
+  patientEmail: string | null;
+  status: "ACTIVE";
+  updatedAt: string;
+};
+
+type DoctorAssignmentRequest = {
+  id: number;
+  patientId: number;
+  patientEmail: string | null;
+  status: "PENDING";
+  createdAt: string;
+};
 
 function DoctorDashboard() {
+  const [assignedPatients, setAssignedPatients] = useState<AssignedPatient[]>([]);
+  const [requests, setRequests] = useState<DoctorAssignmentRequest[]>([]);
+  const [loadingAssigned, setLoadingAssigned] = useState<boolean>(true);
+  const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
+  const [assignmentStatus, setAssignmentStatus] = useState<string>("");
+
   // placeholder appointment data for midpoint demo only
   const upcomingAppointments = [
     {
@@ -27,6 +54,56 @@ function DoctorDashboard() {
     },
   ];
 
+  const loadAssignedPatients = async () => {
+    try {
+      setLoadingAssigned(true);
+      const res = await getDoctorAssignedPatients();
+      setAssignedPatients(res.assignments || []);
+    } catch (err: any) {
+      setAssignmentStatus("Could not load assigned patients.");
+    } finally {
+      setLoadingAssigned(false);
+    }
+  };
+
+  const loadRequests = async () => {
+    try {
+      setLoadingRequests(true);
+      const res = await getDoctorAccessRequests();
+      setRequests(res.requests || []);
+    } catch (err: any) {
+      setAssignmentStatus("Could not load doctor assignment requests.");
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAssignedPatients();
+    loadRequests();
+  }, []);
+
+  const handleAccept = async (assignmentId: number) => {
+    try {
+      const res = await acceptDoctorAccessRequest(assignmentId);
+      setAssignmentStatus(res.message || "Assignment request accepted.");
+      await loadAssignedPatients();
+      await loadRequests();
+    } catch (err: any) {
+      setAssignmentStatus(err?.error || "Could not accept assignment request.");
+    }
+  };
+
+  const handleReject = async (assignmentId: number) => {
+    try {
+      const res = await rejectDoctorAccessRequest(assignmentId);
+      setAssignmentStatus(res.message || "Assignment request rejected.");
+      await loadRequests();
+    } catch (err: any) {
+      setAssignmentStatus(err?.error || "Could not reject assignment request.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
 
@@ -43,35 +120,40 @@ function DoctorDashboard() {
 <div className="bg-white p-6 rounded-xl shadow">
   <h2 className="text-lg font-semibold">Assigned Patients</h2>
   <p className="text-sm text-slate-600 mt-1 mb-4">
-    Select a patient to view their medical history and records.
+    Active patient assignments for this doctor.
   </p>
 
-  {/* scrollable patient list placeholder */}
-  <div className="max-h-48 overflow-y-auto space-y-3 pr-1">
-    {[
-      { name: "Mary O'Brien", condition: "Diabetes Type 2" },
-      { name: "John Murphy", condition: "Crohn’s Disease" },
-      { name: "Sarah Kelly", condition: "Rheumatoid Arthritis" },
-      { name: "Tom Walsh", condition: "Asthma" },
-      { name: "Emma Byrne", condition: "Endometriosis" },
-    ].map((patient, idx) => (
-      <div
-        key={idx}
-        className="flex items-center justify-between p-3 border rounded-lg"
-      >
-        <div>
-          <p className="font-medium">{patient.name}</p>
-          <p className="text-xs text-slate-500">{patient.condition}</p>
-        </div>
+  {assignmentStatus ? (
+    <p className="text-sm text-slate-700 mb-4">{assignmentStatus}</p>
+  ) : null}
 
-        <button
-          className="px-3 py-1 text-xs bg-slate-900 text-white rounded hover:bg-slate-800"
-          // placeholder only — real navigation added after midpoint
+  <div className="max-h-48 overflow-y-auto space-y-3 pr-1">
+    {loadingAssigned ? (
+      <p className="text-sm text-slate-600">Loading assigned patients...</p>
+    ) : assignedPatients.length === 0 ? (
+      <p className="text-sm text-slate-600">No active assigned patients.</p>
+    ) : (
+      assignedPatients.map((patient) => (
+        <div
+          key={patient.id}
+          className="flex items-center justify-between p-3 border rounded-lg"
         >
-          View Patient
-        </button>
-      </div>
-    ))}
+          <div>
+            <p className="font-medium">{patient.patientEmail || `Patient #${patient.patientId}`}</p>
+            <p className="text-xs text-slate-500">
+              Status: {patient.status} | Updated {new Date(patient.updatedAt).toLocaleString()}
+            </p>
+          </div>
+
+          <button
+            className="px-3 py-1 text-xs bg-slate-900 text-white rounded hover:bg-slate-800"
+            // placeholder only real navigation added after midpoint
+          >
+            View Patient
+          </button>
+        </div>
+      ))
+    )}
   </div>
 
   <p className="text-xs text-slate-500 mt-4">
@@ -79,60 +161,49 @@ function DoctorDashboard() {
   </p>
 </div>
 
-{/* Patient History */}
+{/* Doctor Assignment Requests */}
 <div className="bg-white p-5 rounded-xl shadow">
-  <h2 className="text-lg font-semibold">Patient History</h2>
+  <h2 className="text-lg font-semibold">Doctor Assignment Requests</h2>
 
   <p className="text-sm text-slate-600 mt-1 mb-3">
-    Review a selected patient’s medical timeline and clinical records.
+    Review pending patient assignment requests.
   </p>
 
-  {/* Patient selector (non-functional placeholder) */}
-  <div className="mb-3">
-    <label className="block text-xs font-medium text-slate-600 mb-1">
-      Select Patient
-    </label>
-
-    <select
-      className="w-full border rounded px-2.5 py-1.5 text-sm bg-slate-50 cursor-not-allowed"
-      disabled
-    >
-      <option>— Select an assigned patient —</option>
-      <option>Mary O’Brien</option>
-      <option>John Kelly</option>
-      <option>Sarah Byrne</option>
-    </select>
-
-    <p className="text-xs text-slate-500 mt-1">
-      Placeholder — patient context applied after midpoint
-    </p>
-  </div>
-
-  {/* Scrollable history timeline */}
   <div className="max-h-40 overflow-y-auto space-y-3 border rounded p-3 bg-slate-50">
-    <div className="border-l-4 border-blue-600 pl-3">
-      <p className="text-xs text-slate-500">15 Mar 2025</p>
-      <p className="text-sm font-medium">Symptom Logged</p>
-      <p className="text-xs text-slate-600">
-        Fatigue level increased (7/10)
-      </p>
-    </div>
+    {loadingRequests ? (
+      <p className="text-sm text-slate-600">Loading assignment requests...</p>
+    ) : requests.length === 0 ? (
+      <p className="text-sm text-slate-600">No pending assignment requests.</p>
+    ) : (
+      requests.map((request) => (
+        <div
+          key={request.id}
+          className="flex items-center justify-between gap-3 border rounded-lg p-3 bg-white"
+        >
+          <div>
+            <p className="font-medium">{request.patientEmail || `Patient #${request.patientId}`}</p>
+            <p className="text-xs text-slate-500">
+              Pending since {new Date(request.createdAt).toLocaleString()}
+            </p>
+          </div>
 
-    <div className="border-l-4 border-emerald-600 pl-3">
-      <p className="text-xs text-slate-500">14 Mar 2025</p>
-      <p className="text-sm font-medium">Lab Result Uploaded</p>
-      <p className="text-xs text-slate-600">
-        Blood test results uploaded
-      </p>
-    </div>
-
-    <div className="border-l-4 border-purple-600 pl-3">
-      <p className="text-xs text-slate-500">12 Mar 2025</p>
-      <p className="text-sm font-medium">Clinical Note</p>
-      <p className="text-xs text-slate-600">
-        Patient reports improved appetite
-      </p>
-    </div>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-1 text-xs bg-slate-900 text-white rounded hover:bg-slate-800"
+              onClick={() => handleAccept(request.id)}
+            >
+              Accept
+            </button>
+            <button
+              className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+              onClick={() => handleReject(request.id)}
+            >
+              Reject
+            </button>
+          </div>
+        </div>
+      ))
+    )}
   </div>
 </div>
 
