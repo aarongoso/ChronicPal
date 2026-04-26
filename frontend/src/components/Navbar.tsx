@@ -154,27 +154,10 @@ const Navbar: React.FC = () => {
             </button>
 
             <button
-              onClick={() => navigate("/doctor/patients")}
+              onClick={() => navigate("/doctor/assigned-patients")}
               className="hover:bg-slate-800 px-2.5 py-1 rounded"
             >
               Assigned Patients
-            </button>
-
-            <button
-              onClick={() => navigate("/doctor/history")}
-              className="hover:bg-slate-800 px-2.5 py-1 rounded"
-            >
-              Patient History
-            </button>
-            <button
-              onClick={() =>
-                alert(
-                  "Notifications placeholder — Socket.io alerts will appear here after midpoint"
-                )
-              }
-              className="hover:bg-slate-800 px-2.5 py-1 rounded"
-            >
-              Notifications
             </button>
 
             <SecureFilesButton />

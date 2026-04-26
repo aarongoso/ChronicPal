@@ -19,12 +19,11 @@ import AdminDoctorRequests from "./pages/AdminDoctorRequests";
 import AdminDoctorRequestDetail from "./pages/AdminDoctorRequestDetail";
 import MfaSetup from "./pages/MfaSetup";
 import PatientProfile from "./pages/PatientProfile";
+import DoctorPatientHistory from "./pages/DoctorPatientHistory";
+import DoctorAssignedPatients from "./pages/DoctorAssignedPatients";
 
-// Main App navigation between Login, Register, Logout, and File Upload
-// Acts as the root of the frontend authentication system
+// Main application router for public, patient, doctor, and admin pages
 function App() {
-  // note: role and token checks are now performed inside the Navbar component
-  // keeping these here would be redundant and risk UI mismatches
 
   return (
     <BrowserRouter>
@@ -87,6 +86,24 @@ function App() {
           element={
             <ProtectedRoute>
               <DoctorDashboard />
+            </ProtectedRoute>
+          }
+        />
+ 
+        <Route
+          path="/doctor/assigned-patients"
+          element={
+            <ProtectedRoute>
+              <DoctorAssignedPatients />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/doctor/patients/:patientId/history"
+          element={
+            <ProtectedRoute>
+              <DoctorPatientHistory />
             </ProtectedRoute>
           }
         />

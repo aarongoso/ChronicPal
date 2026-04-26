@@ -56,6 +56,27 @@ type RiskTags = {
   highIron?: boolean | null;
 };
 
+// Converts one manual dose input into doseQty + doseUnit
+// frontend/backend mismatch where the UI sent "dosage"
+// but the backend manual medication route expects doseQty and doseUnit so doasge was being ingored
+function parseManualDoseInput(value: string): { doseQty?: number; doseUnit?: string } {
+  const trimmed = value.trim();
+  if (!trimmed) return {};
+
+  const match = trimmed.match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+  if (!match) {
+    return { doseUnit: trimmed };
+  }
+
+  const parsedQty = Number(match[1]);
+  const parsedUnit = match[2]?.trim();
+
+  return {
+    doseQty: Number.isFinite(parsedQty) ? parsedQty : undefined,
+    doseUnit: parsedUnit || undefined,
+  };
+}
+
 function DailyLog() {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
@@ -432,13 +453,13 @@ function DailyLog() {
     setMsg(null);
 
     try {
+      // becomes doseQty: 200 and doseUnit: mg
+      const parsedDose = parseManualDoseInput(medManualDose);
       const payload: any = {
         medicationName: medManualName.trim(),
         takenAt: toIsoFromDate(logDate),
+        ...parsedDose,
       };
-
-      const dose = medManualDose.trim();
-      if (dose.length > 0) payload.dosage = dose;
 
       await logMedicationManual(payload);
 

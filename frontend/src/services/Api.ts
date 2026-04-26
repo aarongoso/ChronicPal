@@ -188,8 +188,61 @@ export const rejectDoctorAccessRequest = async (assignmentId: number) => {
   return response.data;
 };
 
+export const getDoctorPatientHistory = async (
+  patientId: number,
+  params?: { days?: number; limit?: number }
+) => {
+  const safeDays = Number.isFinite(params?.days) ? params!.days : 30;
+  const safeLimit = Number.isFinite(params?.limit) ? params!.limit : 10;
+  return dedupe(`doctor-patient-history-${patientId}-${safeDays}-${safeLimit}`, async () => {
+    const response = await api.get(
+      `/doctor/patients/${patientId}/history?days=${safeDays}&limit=${safeLimit}`
+    );
+    return response.data;
+  });
+};
+
+export const getDoctorAiSummary = async (patientId: number, days?: number) => {
+  const safeDays = Number.isFinite(days) ? days : 30;
+  return dedupe(`doctor-ai-summary-${patientId}-${safeDays}`, async () => {
+    const response = await api.get(`/doctor/ai-summaries/${patientId}?days=${safeDays}`);
+    return response.data;
+  });
+};
+
+export const addDoctorPatientNote = async (patientId: number, body: string) => {
+  const response = await api.post(`/doctor/patients/${patientId}/notes`, { body });
+  return response.data;
+};
+
+export const deleteDoctorPatientNote = async (patientId: number, noteId: number) => {
+  const response = await api.delete(`/doctor/patients/${patientId}/notes/${noteId}`);
+  return response.data;
+};
+
 export const getCurrentUser = async () => {
   const response = await api.get("/auth/me");
+  return response.data;
+};
+
+export type PatientProfilePayload = {
+  dateOfBirth?: string | null;
+  heightCm?: number | string | null;
+  weightKg?: number | string | null;
+  bloodType?: string | null;
+  gender?: string | null;
+  chronicConditions?: string | null;
+  allergies?: string | null;
+  medicalHistorySummary?: string | null;
+};
+
+export const getPatientProfile = async () => {
+  const response = await api.get("/patient/profile");
+  return response.data;
+};
+
+export const updatePatientProfile = async (payload: PatientProfilePayload) => {
+  const response = await api.put("/patient/profile", payload);
   return response.data;
 };
 
@@ -336,7 +389,10 @@ export const logMedication = async (payload: {
 
 export const logMedicationManual = async (payload: {
   medicationName: string;
-  dosage?: string;
+  // rfontend now sends structured dose fields to match the backend
+  // replaced "dosage" string
+  doseQty?: number; 
+  doseUnit?: string;
   notes?: string;
   takenAt: string;
 }) => {

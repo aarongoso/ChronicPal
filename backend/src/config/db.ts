@@ -10,6 +10,8 @@ const initFavouriteModel = require("../models/FavouriteModel");
 const initDoctorPatientAssignmentModel = require("../models/DoctorPatientAssignmentModel");
 const initDoctorAccountRequestModel = require("../models/DoctorAccountRequestModel");
 const initFileRecordModel = require("../models/FileRecordModel");
+const initDoctorPatientNoteModel = require("../models/DoctorPatientNoteModel");
+const initPatientProfileModel = require("../models/PatientProfileModel");
 
 // Sequelize ORM connects to MySQL database and synchronizes all models
 export const sequelize = new Sequelize(
@@ -34,6 +36,8 @@ export const Favourite = initFavouriteModel(sequelize);
 export const DoctorPatientAssignment = initDoctorPatientAssignmentModel(sequelize);
 export const DoctorAccountRequest = initDoctorAccountRequestModel(sequelize);
 export const FileRecord = initFileRecordModel(sequelize);
+export const DoctorPatientNote = initDoctorPatientNoteModel(sequelize);
+export const PatientProfile = initPatientProfileModel(sequelize);
 
 // Define relationships
 // Audit logs link back to users
@@ -56,9 +60,20 @@ User.hasMany(SymptomLog, { foreignKey: "userId" });
 Favourite.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
 User.hasMany(Favourite, { foreignKey: "userId" });
 
+// Patient profile is one-to-one with a patient user
+PatientProfile.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
+User.hasOne(PatientProfile, { foreignKey: "userId" });
+
 // Doctor/patient access assignments (consent-based: patient requests, doctor accepts)
 DoctorPatientAssignment.belongsTo(User, { foreignKey: "doctorId", onDelete: "CASCADE" });
 DoctorPatientAssignment.belongsTo(User, { foreignKey: "patientId", onDelete: "CASCADE" });
+
+// Doctor-only notes attached to an active doctor/patient relationship
+DoctorPatientNote.belongsTo(User, { as: "doctor", foreignKey: "doctorId", onDelete: "CASCADE" });
+User.hasMany(DoctorPatientNote, { as: "doctorNotes", foreignKey: "doctorId" });
+
+DoctorPatientNote.belongsTo(User, { as: "patient", foreignKey: "patientId", onDelete: "CASCADE" });
+User.hasMany(DoctorPatientNote, { as: "patientDoctorNotes", foreignKey: "patientId" });
 
 // Secure file metadata belongs to users for ownership, upload tracking, and soft delete auditing
 FileRecord.belongsTo(User, { as: "ownerPatient", foreignKey: "ownerPatientId", onDelete: "CASCADE" });

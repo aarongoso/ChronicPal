@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   acceptDoctorAccessRequest,
   getDoctorAssignedPatients,
@@ -23,6 +24,7 @@ type DoctorAssignmentRequest = {
 };
 
 function DoctorDashboard() {
+  const navigate = useNavigate();
   const [assignedPatients, setAssignedPatients] = useState<AssignedPatient[]>([]);
   const [requests, setRequests] = useState<DoctorAssignmentRequest[]>([]);
   const [loadingAssigned, setLoadingAssigned] = useState<boolean>(true);
@@ -147,7 +149,7 @@ function DoctorDashboard() {
 
           <button
             className="px-3 py-1 text-xs bg-slate-900 text-white rounded hover:bg-slate-800"
-            // placeholder only real navigation added after midpoint
+            onClick={() => navigate(`/doctor/patients/${patient.patientId}/history`)}
           >
             View Patient
           </button>
