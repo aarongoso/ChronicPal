@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import notificationIcon from "../icons/notification.png";
+import api from "../services/Api";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -9,10 +10,16 @@ const Navbar: React.FC = () => {
   const role = localStorage.getItem("role");
 
   // logout handler
-  const handleLogout = () => {
-    // TODO: backend logout endpoint will remove secure cookies
-    localStorage.clear();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("role");
+      navigate("/login");
+    }
   };
 
   // PUBLIC NAVBAR (not logged in) ---------------------------
@@ -102,13 +109,6 @@ const Navbar: React.FC = () => {
               Insights
             </button>
 
-            <button
-              onClick={() => navigate("/patient/appointments")}
-              className="hover:bg-slate-800 px-2.5 py-1 rounded"
-            >
-              Appointments
-            </button>
-            
             <button
               onClick={() => navigate("/patient/log?tab=symptoms")}
               className="hover:bg-slate-800 px-2.5 py-1 rounded"

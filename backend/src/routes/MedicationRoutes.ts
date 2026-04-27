@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
-const { externalApiLimiter } = require("../utils/rateLimiters");
+const { externalApiLimiter } = require("../utils/RateLimiters");
 
 const {
   validateMedicationSearch,

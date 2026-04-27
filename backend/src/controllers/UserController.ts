@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User } = require("../config/db"); 
-const { logAudit } = require("../utils/AuditLogger");
+const { logAudit } = require("../utils/auditLogger");
 
 /**
  * Handles user login and returns access token + role

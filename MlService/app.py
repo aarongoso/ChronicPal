@@ -13,7 +13,7 @@ load_dotenv()
 # Flask app instance (internal microservice, not public facing)
 app = Flask(__name__)
 
-INTERNAL_ML_TOKEN = os.getenv("INTERNAL_ML_TOKEN", "")
+ML_INTERNAL_TOKEN = os.getenv("ML_INTERNAL_TOKEN", "")
 MODEL = BaselineRiskModel()
 
 def _is_internal_request_authorised(req) -> bool:
@@ -21,8 +21,8 @@ def _is_internal_request_authorised(req) -> bool:
     provided = req.headers.get("X-Internal-ML-Token", "")
 
     # compare_digest avoids timing attacks
-    return bool(INTERNAL_ML_TOKEN) and hmac.compare_digest(
-        provided, INTERNAL_ML_TOKEN
+    return bool(ML_INTERNAL_TOKEN) and hmac.compare_digest(
+        provided, ML_INTERNAL_TOKEN
     )
 
 

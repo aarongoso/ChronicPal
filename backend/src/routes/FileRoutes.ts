@@ -11,9 +11,9 @@ const path = require("path");
 // Middleware to check JWT access token
 const { authenticateToken } = require("../middleware/AuthMiddleware");
 // Encryption helper
-const { encryptAndSaveFile, decryptStoredFile, ENCRYPTED_DIR } = require("../utils/FileEncryption");
+const { encryptAndSaveFile, decryptStoredFile, ENCRYPTED_DIR } = require("../utils/fileEncryption");
 // Audit logging helper
-const { logAudit } = require("../utils/AuditLogger");
+const { logAudit } = require("../utils/auditLogger");
 const { FileRecord, DoctorPatientAssignment, User } = require("../config/db");
 const router = express.Router();
 // Antivirus scanner (ClamAV CLI)

@@ -30,7 +30,7 @@ const issueAuthTokens = (user: any, res: Response) => {
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: false, // changed at deployment
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
 
