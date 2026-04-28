@@ -77,7 +77,14 @@ router.post(
   "/register",
   [
     body("email").isEmail().normalizeEmail(),
-    body("password").isLength({ min: 8 }).trim().escape(),
+    // OWASP: password strength
+    body("password")
+      .isLength({ min: 8 })
+      .matches(/[a-z]/)
+      .matches(/[A-Z]/)
+      .matches(/[0-9]/)
+      .matches(/[^A-Za-z0-9]/)
+      .withMessage("Password must be at least 8 characters and include uppercase, lowercase, number, and special character."),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -131,7 +138,7 @@ router.post(
   authLoginLimiter,
   [
     body("email").isEmail().normalizeEmail(),
-    body("password").isString().trim().escape(),
+    body("password").isString(),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
