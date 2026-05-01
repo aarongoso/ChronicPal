@@ -173,7 +173,7 @@ function Home() {
           </div>
 
           <div className="bg-slate-50 p-4 rounded-lg border text-sm">
-            AI Insights (Planned)
+            Health Insights
           </div>
 
           <div className="bg-slate-50 p-4 rounded-lg border text-sm">

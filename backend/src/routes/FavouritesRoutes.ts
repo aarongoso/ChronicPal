@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { body, validationResult } = require("express-validator");
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
 const { Favourite } = require("../config/db");
 const { logAudit } = require("../utils/auditLogger");
@@ -41,8 +42,19 @@ router.post(
   "/",
   authenticateToken,
   authorizeRoles(["patient"]),
+  [
+    // allow list expected enum values
+    body("type").isIn(["FOOD", "MEDICATION"]).withMessage("Invalid type. Use FOOD or MEDICATION."),
+    // validate type and length at the boundary
+    body("name").isString().trim().isLength({ min: 1, max: 255 }).withMessage("Invalid name."),
+  ],
   async (req: any, res: any) => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
       const userId = req.user.id; // favourites are always scoped to the authenticated user (prevents cross account access)
 
       const { type, name, externalId, source } = req.body;

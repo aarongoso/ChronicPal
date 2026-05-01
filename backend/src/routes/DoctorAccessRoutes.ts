@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { body, validationResult } = require("express-validator");
 
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
 const { User, DoctorPatientAssignment } = require("../config/db");
@@ -26,10 +27,19 @@ router.post(
   "/request",
   authenticateToken,
   authorizeRoles(["patient"]),
+  [
+    // validate email format at the boundary
+    body("doctorEmail").isEmail().withMessage("Invalid doctorEmail."),
+  ],
   async (req: any, res: any) => {
     const patientId = req.user.id;
 
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
       const { doctorEmail } = req.body;
 
       if (!isValidEmail(doctorEmail)) {

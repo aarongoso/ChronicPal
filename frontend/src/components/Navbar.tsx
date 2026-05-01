@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import notificationIcon from "../icons/notification.png";
+// import notificationIcon from "../icons/notification.png";
 import api from "../services/Api";
 
 const Navbar: React.FC = () => {
@@ -69,17 +69,18 @@ const Navbar: React.FC = () => {
     </button>
   );
 
-  const NotificationBell = () => (
-    <button
-      onClick={() =>
-        alert("Notifications placeholder TODO")
-      }
-      className="px-2 py-1 rounded hover:bg-slate-800"
-      title="Notifications"
-    >
-      <img src={notificationIcon} alt="" className="h-5 w-5" />
-    </button>
-  );
+  // Not yet implemented potential future feature
+  // const NotificationBell = () => (
+  //   <button
+  //     onClick={() =>
+  //       alert("Notifications placeholder TODO")
+  //     }
+  //     className="px-2 py-1 rounded hover:bg-slate-800"
+  //     title="Notifications"
+  //   >
+  //     <img src={notificationIcon} alt="" className="h-5 w-5" />
+  //   </button>
+  // );
 
   // PATIENT NAVBAR ---------------------------
   if (role === "patient") {
@@ -117,7 +118,8 @@ const Navbar: React.FC = () => {
             </button>
 
             <SecureFilesButton />
-            <NotificationBell />
+            {/* Not yet implemented potential future feature */}
+            {/* <NotificationBell /> */}
 
             <button
               onClick={handleLogout}
@@ -161,7 +163,8 @@ const Navbar: React.FC = () => {
             </button>
 
             <SecureFilesButton />
-            <NotificationBell />
+            {/* Not yet implemented potential future feature */}
+            {/* <NotificationBell /> */}
 
             <button
               onClick={handleLogout}
@@ -211,7 +214,8 @@ const Navbar: React.FC = () => {
             </button>
 
             <SecureFilesButton />
-            <NotificationBell />
+            {/* Not yet implemented potential future feature */}
+            {/* <NotificationBell /> */}
 
             <button
               onClick={handleLogout}

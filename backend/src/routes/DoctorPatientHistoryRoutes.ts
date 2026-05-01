@@ -1,5 +1,6 @@
 const express = require("express");
 const { Op } = require("sequelize");
+const { body: validateBody, validationResult } = require("express-validator");
 
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
 const {
@@ -293,10 +294,19 @@ router.post(
   "/:patientId/notes",
   authenticateToken,
   authorizeRoles(["doctor"]),
+  [
+    // Validate type and length at the boundary
+    validateBody("body").isString().trim().isLength({ min: 1, max: 1000 }).withMessage("Invalid note body."),
+  ],
   async (req: any, res: any) => {
     const doctorId = req.user.id;
 
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
       const patientId = parsePositiveInt(req.params.patientId);
       if (!patientId) {
         return res.status(400).json({ error: "Invalid patientId." });

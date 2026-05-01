@@ -31,7 +31,7 @@ function DoctorDashboard() {
   const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
   const [assignmentStatus, setAssignmentStatus] = useState<string>("");
 
-  // placeholder appointment data for midpoint demo only
+  /* Not yet implemented potential future feature
   const upcomingAppointments = [
     {
       day: "Mon",
@@ -55,6 +55,7 @@ function DoctorDashboard() {
       reason: "MRI Scan",
     },
   ];
+  */
 
   const loadAssignedPatients = async () => {
     try {
@@ -211,7 +212,7 @@ function DoctorDashboard() {
 
 
 
-        {/* Manage Appointments */}
+        {/* Not yet implemented potential future feature
         <div className="bg-white p-6 rounded-xl shadow md:col-span-2">
           <div className="flex items-center justify-between">
             <div>
@@ -234,7 +235,7 @@ function DoctorDashboard() {
             </button>
           </div>
 
-          {/* Fake calendar table */}
+          Fake calendar table
           <div className="mt-4 border rounded-lg overflow-hidden">
             <div className="grid grid-cols-12 bg-slate-50 text-xs font-semibold text-slate-600 border-b">
               <div className="col-span-2 p-3">Day</div>
@@ -258,8 +259,9 @@ function DoctorDashboard() {
             ))}
           </div>
         </div>
+        */}
 
-        {/* Notifications */}
+        {/* Not yet implemented potential future feature
         <div className="bg-white p-6 rounded-xl shadow md:col-span-2">
           <h2 className="text-lg font-semibold">Notifications</h2>
           <p className="text-sm text-slate-600 mt-1">
@@ -267,6 +269,7 @@ function DoctorDashboard() {
             (Socket.io planned).
           </p>
         </div>
+        */}
 
       </div>
     </div>

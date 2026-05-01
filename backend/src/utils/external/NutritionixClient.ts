@@ -1,5 +1,10 @@
 const axios = require("axios");
 
+// Nutritionix API access was requested multiple times
+// but not received within the project timeline
+// when credentials are not present,
+// the application falls back to OpenFoodFacts
+
 // Nutritionix API client
 const nutritionixSearch = async (query: string) => {
   const appId = process.env.NUTRITIONIX_APP_ID;

@@ -271,7 +271,7 @@ function DoctorPatientHistory() {
         <section className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-semibold">Patient Summary</h2>
           {!aiSummary?.summary ? (
-            <EmptyState label="No AI summary available." />
+            <EmptyState label="No summary available." />
           ) : (
             <div className="mt-4 space-y-3 text-sm text-slate-700">
               <p>

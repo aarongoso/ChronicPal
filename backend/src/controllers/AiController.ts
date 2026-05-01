@@ -56,7 +56,7 @@ async function buildAiPayloadFromDb(userId: number, windowDays: number) {
       userId,
       consumedAt: { [Op.gte]: since },
     },
-    attributes: ["name", "caloriesKcal", "consumedAt"],
+    attributes: ["name", "riskTags", "consumedAt"],
     order: [["consumedAt", "DESC"]],
     limit: 500,
   });
@@ -83,7 +83,10 @@ async function buildAiPayloadFromDb(userId: number, windowDays: number) {
 
   const foodLogs = foodRows.map((r: any) => ({
     name: r.name,
-    caloriesKcal: typeof r.caloriesKcal === "number" ? r.caloriesKcal : null,
+    riskTags:
+      r.riskTags && typeof r.riskTags === "object" && !Array.isArray(r.riskTags)
+        ? r.riskTags
+        : {},
     consumedAt: r.consumedAt,
   }));
 
@@ -428,21 +431,21 @@ function buildAiCards(
       evidence,
       confidence: confidenceFromEvents(riskFoods.length),
       conditions: [],
-      nextStep: "Try a 7‑day break from one item and compare how you feel.",
+      nextStep: "Try a 7 day break from one item and compare how you feel.",
     });
   }
 
   if (safeFoods.length > 0) {
     cards.push({
       id: "safe-foods",
-      title: "Top safe foods",
+      title: "Possibly tolerated foods",
       summary: `These foods were not followed by higher symptoms within 12 hours: ${safeFoods.join(
         ", "
       )}.`,
       evidence,
       confidence: confidenceFromEvents(safeFoods.length),
       conditions: [],
-      nextStep: "Keep these as go‑to options on flare‑prone days.",
+      nextStep: "Keep these as go to options on flare prone days.",
     });
   }
 
@@ -467,7 +470,7 @@ function buildAiCards(
       confidence: confidenceFromEvents(counts.medicationLogs),
       conditions: [],
       nextStep: "Aim for steady timing and fewer missed days if you can.",
-      disclaimer: "This isn’t medical advice—talk to your clinician before changing medication.",
+      disclaimer: "This isn't medical advice, talk to your clinician before changing medication.",
     });
   }
 

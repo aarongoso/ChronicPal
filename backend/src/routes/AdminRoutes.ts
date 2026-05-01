@@ -1,5 +1,6 @@
 const express = require("express");
 const { Op } = require("sequelize");
+const { query, validationResult } = require("express-validator");
 const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddleware");
 const { AuditLog, User, DoctorAccountRequest } = require("../config/db");
 const { logAudit } = require("../utils/auditLogger");
@@ -18,18 +19,33 @@ router.get(
   "/audit-logs",
   authenticateToken, // valid JWT
   authorizeRoles(["admin"]), // allow only admins
+  // OWASP: validate all external input at the route boundary
+  [
+    query("action").optional().isString().trim().isLength({ max: 100 }),
+    query("userId").optional().isInt({ min: 1 }),
+    query("start").optional().isISO8601(),
+    query("end").optional().isISO8601(),
+  ],
   async (req: any, res: any) => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: "Invalid audit log filters.",
+          details: errors.array(),
+        });
+      }
+
       const { action, userId, start, end } = req.query;
 
       // Build dynamic WHERE clause
       const whereClause: any = {};
 
       // Optional action filter (LOGIN, FILE_UPLOAD, REGISTER, etc.)
-      if (action) whereClause.action = action;
+      if (action) whereClause.action = String(action).trim();
 
       // Optional user ID filter
-      if (userId) whereClause.userId = userId;
+      if (userId) whereClause.userId = parseInt(String(userId), 10);
 
       // Optional date range filters
       if (start || end) {

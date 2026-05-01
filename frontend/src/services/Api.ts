@@ -24,15 +24,9 @@ const FOOD_BASE = "/food";
 const MED_BASE = "/medications";
 const SYM_BASE = "/symptoms";
 
-// Attach CSRF + Access Token
+// Attach access token for authenticated endpoints.
+// Refresh tokens are sent as HttpOnly cookies via withCredentials.
 api.interceptors.request.use((config) => {
-  const csrfToken = getCookie("XSRF-TOKEN");
-  if (csrfToken) {
-    // CSRF token is sent in a header so backend can validate cookie + header pair
-    config.headers["X-CSRF-TOKEN"] = csrfToken;
-  }
-
-  // Attach access token for authenticated endpoints (upload, protected routes)
   const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers["Authorization"] = `Bearer ${token}`;
@@ -110,13 +104,6 @@ api.interceptors.response.use(
   (res) => res,
   (err) => handleRefresh(err)
 );
-
-function getCookie(name: string) {
-  return document.cookie
-    .split("; ")
-    .find((c) => c.startsWith(name + "="))
-    ?.split("=")[1];
-}
 
 export const uploadFile = async (file: File, ownerPatientId?: number) => {
   const formData = new FormData();

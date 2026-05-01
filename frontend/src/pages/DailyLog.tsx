@@ -1166,7 +1166,7 @@ function DailyLog() {
 
       <div className="bg-white p-5 rounded-xl shadow mt-6">
         <p className="text-xs text-slate-500">
-          Note: AI insights update as you log more data.
+          Note: Health insights update as you log more data.
         </p>
       </div>
     </div>
