@@ -3,7 +3,7 @@ const axios = require("axios");
 // Axios defaults + headers pattern based on Axios docs
 type MlPredictRequest = {
   symptoms?: Array<{ name?: string; severity?: number }>;
-  foodLogs?: Array<{ calories?: number }>;
+  foodLogs?: Array<{ name?: string; riskTags?: Record<string, any> }>;
   medicationLogs?: Array<{ name?: string }>;
 };
 

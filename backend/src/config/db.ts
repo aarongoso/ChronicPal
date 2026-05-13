@@ -1,4 +1,6 @@
 import { Sequelize } from "sequelize";
+// Sets up Sequelize models and relationships between users, logs, doctors, files, and audit records
+
 import dotenv from "dotenv";
 dotenv.config();
 const initUserModel = require("../models/UserModel");
@@ -39,7 +41,7 @@ export const FileRecord = initFileRecordModel(sequelize);
 export const DoctorPatientNote = initDoctorPatientNoteModel(sequelize);
 export const PatientProfile = initPatientProfileModel(sequelize);
 
-// Define relationships
+// These relationships explain how the main database tables connect
 // Audit logs link back to users
 AuditLog.belongsTo(User, { foreignKey: "userId", onDelete: "SET NULL" });
 User.hasMany(AuditLog, { foreignKey: "userId" });

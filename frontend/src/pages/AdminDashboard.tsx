@@ -72,7 +72,7 @@ function AdminDashboard() {
 
   // If admin, show dashboard
   return (
-    <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50 p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
       {/* ---------------------- HOME (SYSTEM OVERVIEW) ------------------------- */}
@@ -88,13 +88,13 @@ function AdminDashboard() {
 
           {/* system overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="bg-white p-4 rounded shadow">
+            <div className="bg-white border border-slate-200 p-4 rounded-xl">
               <h2 className="text-sm font-semibold">Total Users</h2>
               <p className="text-2xl mt-2">{stats ? stats.totalUsers : "--"}</p>
               <p className="text-xs text-slate-500">Live count</p>
             </div>
 
-            <div className="bg-white p-4 rounded shadow">
+            <div className="bg-white border border-slate-200 p-4 rounded-xl">
               <h2 className="text-sm font-semibold">Total Doctors</h2>
               <p className="text-2xl mt-2">
                 {stats ? stats.totalDoctors : "--"}
@@ -102,7 +102,7 @@ function AdminDashboard() {
               <p className="text-xs text-slate-500">Live count</p>
             </div>
 
-            <div className="bg-white p-4 rounded shadow">
+            <div className="bg-white border border-slate-200 p-4 rounded-xl">
               <h2 className="text-sm font-semibold">Total Patients</h2>
               <p className="text-2xl mt-2">
                 {stats ? stats.totalPatients : "--"}
@@ -110,7 +110,7 @@ function AdminDashboard() {
               <p className="text-xs text-slate-500">Live count</p>
             </div>
 
-            <div className="bg-white p-4 rounded shadow">
+            <div className="bg-white border border-slate-200 p-4 rounded-xl">
               <h2 className="text-sm font-semibold">Total Admins</h2>
               <p className="text-2xl mt-2">
                 {stats ? stats.totalAdmins : "--"}
@@ -118,7 +118,7 @@ function AdminDashboard() {
               <p className="text-xs text-slate-500">Live count</p>
             </div>
 
-            <div className="bg-white p-4 rounded shadow">
+            <div className="bg-white border border-slate-200 p-4 rounded-xl">
               <h2 className="text-sm font-semibold">
                 Pending Doctor Account Requests
               </h2>

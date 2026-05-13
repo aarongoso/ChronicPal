@@ -108,7 +108,7 @@ function DoctorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50 p-8 max-w-6xl mx-auto">
 
       <h1 className="text-3xl font-bold mb-4">Doctor Dashboard</h1>
 
@@ -120,7 +120,7 @@ function DoctorDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* Assigned Patients */}
-<div className="bg-white p-6 rounded-xl shadow">
+<div className="bg-white border border-slate-200 p-6 rounded-xl">
   <h2 className="text-lg font-semibold">Assigned Patients</h2>
   <p className="text-sm text-slate-600 mt-1 mb-4">
     Active patient assignments for this doctor.
@@ -149,7 +149,7 @@ function DoctorDashboard() {
           </div>
 
           <button
-            className="px-3 py-1 text-xs bg-slate-900 text-white rounded hover:bg-slate-800"
+            className="px-3 py-1 text-xs bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f]"
             onClick={() => navigate(`/doctor/patients/${patient.patientId}/history`)}
           >
             View Patient
@@ -165,7 +165,7 @@ function DoctorDashboard() {
 </div>
 
 {/* Doctor Assignment Requests */}
-<div className="bg-white p-5 rounded-xl shadow">
+<div className="bg-white border border-slate-200 p-5 rounded-xl">
   <h2 className="text-lg font-semibold">Doctor Assignment Requests</h2>
 
   <p className="text-sm text-slate-600 mt-1 mb-3">
@@ -192,7 +192,7 @@ function DoctorDashboard() {
 
           <div className="flex gap-2">
             <button
-              className="px-3 py-1 text-xs bg-slate-900 text-white rounded hover:bg-slate-800"
+              className="px-3 py-1 text-xs bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f]"
               onClick={() => handleAccept(request.id)}
             >
               Accept
@@ -213,7 +213,7 @@ function DoctorDashboard() {
 
 
         {/* Not yet implemented potential future feature
-        <div className="bg-white p-6 rounded-xl shadow md:col-span-2">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl md:col-span-2">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">Manage Appointments</h2>
@@ -226,7 +226,7 @@ function DoctorDashboard() {
             </div>
 
             <button
-              className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+              className="px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
               onClick={() =>
                 alert("Appointment management placeholder for midpoint demo")
               }
@@ -262,7 +262,7 @@ function DoctorDashboard() {
         */}
 
         {/* Not yet implemented potential future feature
-        <div className="bg-white p-6 rounded-xl shadow md:col-span-2">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl md:col-span-2">
           <h2 className="text-lg font-semibold">Notifications</h2>
           <p className="text-sm text-slate-600 mt-1">
             Placeholder for real-time clinical alerts and appointment updates

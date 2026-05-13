@@ -71,15 +71,15 @@ const DoctorActivation: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
+    <div className="flex justify-center items-center min-h-screen bg-slate-50 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 w-full max-w-md shadow-lg rounded-xl"
+        className="bg-white border border-slate-200 p-6 w-full max-w-md rounded-2xl"
       >
         <h2 className="text-2xl font-bold text-center mb-4">
           Doctor Account Activation
         </h2>
-        <p className="text-xs text-gray-500 mb-3 text-center">
+        <p className="text-xs text-slate-400 mb-3 text-center">
           Enter the activation token provided by the admin, then set a strong
           password to activate your account.
         </p>
@@ -89,7 +89,7 @@ const DoctorActivation: React.FC = () => {
           placeholder="Activation Token"
           value={token}
           onChange={(e) => setToken(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
+          className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
           required
         />
 
@@ -98,7 +98,7 @@ const DoctorActivation: React.FC = () => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
+          className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
           required
         />
 
@@ -107,20 +107,20 @@ const DoctorActivation: React.FC = () => {
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
+          className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
           required
         />
 
         <button
           type="submit"
           disabled={submitting}
-          className="bg-blue-600 w-full text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-60"
+          className="bg-[#0f2744] w-full text-white p-2 rounded-lg hover:bg-[#1e3a5f] disabled:opacity-60"
         >
           {submitting ? "Activating..." : "Activate Account"}
         </button>
 
         {error && <p className="text-center mt-4 text-sm text-red-600">{error}</p>}
-        {message && <p className="text-center mt-4 text-sm text-gray-700">{message}</p>}
+        {message && <p className="text-center mt-4 text-sm text-slate-600">{message}</p>}
       </form>
     </div>
   );

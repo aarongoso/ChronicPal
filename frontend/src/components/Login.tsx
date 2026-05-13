@@ -83,14 +83,26 @@ function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-slate-50">
       <form
         onSubmit={isMfaStep ? handleMfaVerify : handlePasswordStep}
-        className="bg-white p-6 w-80 shadow-lg rounded-xl"
+        className="bg-white p-8 w-96 border border-slate-200 rounded-2xl"
       >
-        <h2 className="text-2xl font-bold text-center mb-4">
-          {isMfaStep ? "Verify MFA" : "Login"}
+        <h2 className="text-2xl font-bold text-center mb-1 text-[#0f2744]">
+          {isMfaStep ? "Two-factor verification" : "Welcome back"}
         </h2>
+
+        {!isMfaStep && (
+          <p className="text-sm text-slate-500 text-center mb-6">
+            Log in to access your health logs, insights, and secure medical records.
+          </p>
+        )}
+
+        {isMfaStep && (
+          <p className="text-sm text-slate-500 text-center mb-6">
+            Enter the code from your authenticator app to continue.
+          </p>
+        )}
 
         {!isMfaStep && (
           <>
@@ -98,14 +110,14 @@ function Login() {
               type="email"
               placeholder="Email"
               onChange={(e) => setEmail(sanitize(e.target.value))}
-              className="w-full p-2 border rounded mb-3"
+              className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
             />
 
             <input
               type="password"
               placeholder="Password"
               onChange={(e) => setPassword(sanitize(e.target.value))}
-              className="w-full p-2 border rounded mb-3"
+              className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
             />
           </>
         )}
@@ -117,20 +129,20 @@ function Login() {
               inputMode="numeric"
               placeholder="6-digit code"
               onChange={(e) => setMfaCode(sanitize(e.target.value))}
-              className="w-full p-2 border rounded mb-3"
+              className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
             />
-            <p className="text-xs text-gray-600 mb-3">
+            <p className="text-xs text-slate-500 mb-3">
               If you cannot access your authenticator app, contact admin/support.
             </p>
           </>
         )}
 
-        <button className="bg-blue-600 w-full text-white p-2 rounded-lg hover:bg-blue-700">
-          {isMfaStep ? "Verify Code" : "Login"}
+        <button className="bg-[#0f2744] w-full text-white p-2 rounded-lg hover:bg-[#1e3a5f]">
+          {isMfaStep ? "Verify code" : "Log in"}
         </button>
 
         {message && (
-          <p className="text-center mt-4 text-sm text-gray-700">{message}</p>
+          <p className="text-center mt-4 text-sm text-slate-600">{message}</p>
         )}
       </form>
     </div>

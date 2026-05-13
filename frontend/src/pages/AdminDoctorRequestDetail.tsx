@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/Api";
 
+// Admin detail page for approving or rejecting a doctor account request
+
 type DoctorRequestDetail = {
   id: number;
   fullName: string;
@@ -96,19 +98,19 @@ const AdminDoctorRequestDetail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 px-6 py-6">
-      <div className="max-w-3xl mx-auto bg-white shadow rounded-lg p-6">
+    <div className="min-h-screen bg-slate-50 px-6 py-6">
+      <div className="max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">Doctor Request Detail</h2>
           <button
             onClick={() => navigate("/admin/doctor-requests")}
-            className="text-blue-600 hover:underline text-sm"
+            className="text-sky-500 hover:text-sky-400 text-sm"
           >
             Back to list
           </button>
         </div>
 
-        {loading && <p className="text-gray-600">Loading...</p>}
+        {loading && <p className="text-slate-500">Loading...</p>}
         {error && <p className="text-red-600 mb-3">{error}</p>}
         {message && <p className="text-green-700 mb-3">{message}</p>}
 
@@ -175,10 +177,10 @@ const AdminDoctorRequestDetail: React.FC = () => {
         {activationToken && (
           <div className="mt-6">
             <p className="text-sm font-semibold mb-2">Activation Token</p>
-            <div className="bg-gray-100 border rounded p-3 font-mono text-xs break-all">
+            <div className="bg-slate-50 border rounded p-3 font-mono text-xs break-all">
               {activationToken}
             </div>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-slate-500 mt-2">
               Share this token with the doctor via a secure channel. Token expires at{" "}
               {request?.activationTokenExpiresAt
                 ? new Date(request.activationTokenExpiresAt).toLocaleString()
@@ -187,11 +189,11 @@ const AdminDoctorRequestDetail: React.FC = () => {
             </p>
             <button
               onClick={handleCopy}
-              className="mt-2 text-blue-600 hover:underline text-sm"
+              className="mt-2 text-sky-500 hover:text-sky-400 text-sm"
             >
               Copy
             </button>
-            {copyStatus && <p className="text-xs text-gray-600 mt-1">{copyStatus}</p>}
+            {copyStatus && <p className="text-xs text-slate-500 mt-1">{copyStatus}</p>}
           </div>
         )}
       </div>

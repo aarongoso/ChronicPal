@@ -77,9 +77,9 @@ function MfaSetup() {
   }
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+    <div className="max-w-lg mx-auto mt-10 p-6 bg-white border border-slate-200 rounded-xl">
       <h1 className="text-2xl font-bold mb-4">Set Up MFA</h1>
-      <p className="text-sm text-gray-700 mb-4">
+      <p className="text-sm text-slate-600 mb-4">
         Scan this QR with Google Authenticator, Authy, or Microsoft Authenticator.
       </p>
 
@@ -91,8 +91,8 @@ function MfaSetup() {
         />
       )}
 
-      <p className="text-sm text-gray-700 mb-1">Manual setup key:</p>
-      <code className="block text-xs bg-gray-100 p-2 rounded mb-4 break-all">{secret}</code>
+      <p className="text-sm text-slate-600 mb-1">Manual setup key:</p>
+      <code className="block text-xs bg-slate-50 p-2 rounded mb-4 break-all">{secret}</code>
 
       {!done && (
         <form onSubmit={verifySetup}>
@@ -104,7 +104,7 @@ function MfaSetup() {
             onChange={(e) => setCode(e.target.value)}
             className="w-full border rounded p-2 mb-3"
           />
-          <button className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+          <button className="w-full bg-[#0f2744] text-white p-2 rounded hover:bg-[#1e3a5f]">
             Verify and Enable MFA
           </button>
         </form>
@@ -119,7 +119,7 @@ function MfaSetup() {
         </button>
       )}
 
-      <p className="text-xs text-gray-600 mt-4">
+      <p className="text-xs text-slate-500 mt-4">
         Recovery: if you lose access to your authenticator app, contact admin/support.
       </p>
 

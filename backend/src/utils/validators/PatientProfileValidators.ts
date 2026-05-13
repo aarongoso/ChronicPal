@@ -1,4 +1,5 @@
 // Existing patient profile validation logic moved here so it can be unit tested
+// Validates patient profile request data before it reaches the route logic
 
 const ALLOWED_FIELDS = new Set([
   "dateOfBirth",

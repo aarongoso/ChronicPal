@@ -1,6 +1,6 @@
 import axios from "axios";
-// https://stackoverflow.com/questions/51563821/axios-interceptors-retry-original-request-and-access-original-promise
-// central Axios instance with secure defaults
+// Central place for frontend API calls to backend
+// It adds auth headers, handles token refresh, and reuses duplicate requests
 // Sends cookies automatically (HTTP only refresh tokens)
 
 const api = axios.create({
@@ -10,6 +10,7 @@ const api = axios.create({
 
 // Avoid duplicate in-flight calls (helps dev-mode double-invokes and rate limits)
 // same key = same promise, so repeated UI calls reuse one request instead of spamming backend
+// dedup reuses the same request if the UI asks for the same data twice
 const inFlight: Partial<Record<string, Promise<any>>> = {};
 const dedupe = (key: string, fn: () => Promise<any>) => {
   if (inFlight[key]) return inFlight[key]!;

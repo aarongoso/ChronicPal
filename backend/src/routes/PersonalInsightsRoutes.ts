@@ -5,6 +5,8 @@ const { FoodLog, MedicationLog, SymptomLog } = require("../config/db");
 const { logAudit } = require("../utils/auditLogger");
 const { Op } = require("sequelize");
 
+// Returns patient insight summaries without exposing raw log rows
+
 // normalise medication names for ui display
 function normaliseName(value: any) {
   if (typeof value !== "string") return null;
@@ -18,6 +20,7 @@ function normaliseName(value: any) {
 
 // GET /ai/personal-insights?days=7
 // patient only summary stats (no raw rows), always scoped to req.user.id (strict user isolation)
+// Return summary stats only for the logged in patient
 router.get(
   "/personal-insights",
   authenticateToken,

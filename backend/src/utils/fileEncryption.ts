@@ -1,4 +1,7 @@
 const crypto = require("crypto");
+// Encrypts uploaded files before saving them to disk and
+//  decrypts them only after access checks pass
+
 const fs = require("fs");
 const path = require("path");
 

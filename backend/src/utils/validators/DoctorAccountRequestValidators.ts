@@ -1,4 +1,5 @@
 const { body, query } = require("express-validator");
+// Validates public doctor account requests and admin review filters
 
 const looksLikeHtmlOrScript = (input: string) => {
   const lowered = input.toLowerCase();

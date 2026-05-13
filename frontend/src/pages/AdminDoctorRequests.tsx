@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/Api";
 
+// Admin page for reviewing pending doctor account requests
+
 type DoctorRequest = {
   id: number;
   fullName: string;
@@ -37,13 +39,13 @@ const AdminDoctorRequests: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 px-6 py-6">
+    <div className="min-h-screen bg-slate-50 px-6 py-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">Pending Doctor Requests</h2>
           <button
             onClick={fetchRequests}
-            className="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800"
+            className="bg-[#0f2744] text-white px-4 py-2 rounded hover:bg-[#1e3a5f]"
           >
             Refresh
           </button>
@@ -54,10 +56,10 @@ const AdminDoctorRequests: React.FC = () => {
           token that must be shared out-of-band (no email or external sources trusted).
         </p>
 
-        {loading && <p className="text-gray-600">Loading...</p>}
+        {loading && <p className="text-slate-500">Loading...</p>}
         {error && <p className="text-red-600 mb-3">{error}</p>}
 
-        <div className="bg-white shadow rounded-lg overflow-x-auto">
+        <div className="bg-white border border-slate-200 rounded-xl overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -84,7 +86,7 @@ const AdminDoctorRequests: React.FC = () => {
                     {/* Navigate to detail page where approve/reject actions live */}
                     <Link
                       to={`/admin/doctor-requests/${req.id}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-sky-500 hover:text-sky-400"
                     >
                       View
                     </Link>
@@ -94,7 +96,7 @@ const AdminDoctorRequests: React.FC = () => {
 
               {!loading && requests.length === 0 && (
                 <tr>
-                  <td className="px-4 py-6 text-center text-gray-600" colSpan={6}>
+                  <td className="px-4 py-6 text-center text-slate-500" colSpan={6}>
                     No pending requests.
                   </td>
                 </tr>

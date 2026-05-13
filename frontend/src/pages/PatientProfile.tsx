@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { disableMfa, getCurrentUser, getPatientProfile, updatePatientProfile } from "../services/Api";
 
+// Patient profile page, patients save health details,
+// with sensitive fields encrypted by the backend
+
 type CurrentUser = {
   id: number;
   email: string;
@@ -167,20 +170,20 @@ function PatientProfile() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-100 p-8">Loading profile...</div>;
+    return <div className="min-h-screen bg-slate-50 p-8">Loading profile...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8">
+    <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white p-6 rounded-xl shadow mb-6">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl mb-6">
           <h1 className="text-2xl font-bold">Manage Profile</h1>
           <p className="text-sm text-slate-600 mt-1">
             Review your account details and manage optional security settings.
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow mb-6">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl mb-6">
           <h2 className="text-lg font-semibold">Health Profile</h2>
           <form onSubmit={handleSaveHealthProfile} className="mt-5 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -289,7 +292,7 @@ function PatientProfile() {
             <button
               type="submit"
               disabled={savingProfile}
-              className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 disabled:bg-slate-500 text-sm"
+              className="px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] disabled:bg-slate-500 text-sm"
             >
               {savingProfile ? "Saving..." : "Save Health Profile"}
             </button>
@@ -298,7 +301,7 @@ function PatientProfile() {
           </form>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl">
           <h2 className="text-lg font-semibold">Account Security / MFA</h2>
           <p className="text-sm text-slate-600 mt-1">
             Status:{" "}
@@ -314,7 +317,7 @@ function PatientProfile() {
               </p>
               <button
                 onClick={() => navigate("/mfa/setup")}
-                className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+                className="px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
               >
                 Enable MFA
               </button>

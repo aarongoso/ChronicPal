@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 // ref: https://stackoverflow.com/questions/43164554/react-router-private-routes
 // protects any route by checking if access token exists
+// if there is no access token, the user is sent to login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const token = localStorage.getItem("accessToken");
 

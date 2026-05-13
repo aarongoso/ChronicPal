@@ -17,6 +17,9 @@ const { decryptProfileField } = require("../utils/patientProfileCrypto");
 
 const router = express.Router();
 
+// Lets doctors view patient history only after an ACTIVE assignment check
+// Combines profile, symptoms, food, medication, and doctor notes for the doctor view
+
 const parsePositiveInt = (value: any) => {
   const parsed = parseInt(String(value), 10);
   // simple guard so ids from params/query are positive integers only
@@ -87,6 +90,7 @@ const buildProfileSummary = (profile: any) => {
 };
 
 async function ensureActiveAssignment(doctorId: number, patientId: number) {
+  // Shared check to make sure the doctor is allowed to view this patient
   return DoctorPatientAssignment.findOne({
     where: {
       doctorId,
@@ -163,6 +167,7 @@ router.get(
       const fromDate = new Date();
       fromDate.setDate(fromDate.getDate() - days);
 
+      // Load the patients recent logs after the doctor access check passes
       const [profile, symptoms, foodLogs, medicationLogs, notes] = await Promise.all([
         PatientProfile.findOne({
           where: {

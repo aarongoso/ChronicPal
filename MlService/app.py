@@ -3,8 +3,11 @@ import hmac
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
-# BaselineRiskModel handles feature extraction + prediction internally
-# keeps the Flask layer thin and focused on transport/security only
+# Flask API for the ML service
+# The backend calls this service to get a flare-up risk prediction
+
+# The BaselineRiskModel handles feature building and prediction
+# Flask only handles the API request and security checks
 from ML.BaselineModel import BaselineRiskModel
 
 # Load environment variables
@@ -46,7 +49,7 @@ def health():
 
 @app.post("/predict")
 def predict():
-    # Accept anonymised payload only
+    # Only ccept anonymised payload from backend
     # Backend is responsible for building this payload from DB logs
     payload = request.get_json(silent=True) or {}
 

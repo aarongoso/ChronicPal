@@ -8,6 +8,8 @@ const { validatePatientProfilePayload } = require("../utils/validators/PatientPr
 
 const router = express.Router();
 
+// Handles patient profile reads and updates including encryption for sensitive fields
+
 // encrypted sensitive free text medical data because it contains detailed health information,
 // stored lower risk fields in plaintext to balance security with system simplicity
 const encryptedFields = [
@@ -92,7 +94,7 @@ router.get(
     const userId = req.user.id;
 
     try {
-      // patients can only load their own profile using req.user.id
+      // patients can only load/ read and update their own profile using req.user.id
       const profile = await PatientProfile.findOne({ where: { userId } });
 
       await logAudit(userId, "PATIENT_PROFILE_VIEW", req.ip, {
@@ -151,6 +153,7 @@ router.put(
         profileId: profile.id,
 
         // log field names only, never raw medical values
+        // Audit logs record which fields changed, not the private medical values (no data exposur)
         fieldsUpdated: (Object.keys(payload) as Array<keyof ProfilePayload>).filter((field) => payload[field] !== null),
       });
 

@@ -55,6 +55,9 @@ def generate_synthetic_dataset(
     # Food trigger tags are weaker possible contributors, not clinical proof.
     # This rule creates the labels used for training; it is explainable,
     # but it is not based on clinical trial data.
+    # Create training labels from a simple scoring rule.
+    # Symptoms count the most, while food tags have a smaller effect.
+    # This is for the demo baseline, not clinical evidence.
     linear_score = (
         0.50 * (avg_severity / 10.0)
         + 0.30 * (symptom_count / 10.0)
@@ -134,3 +137,4 @@ if __name__ == "__main__":
     print(f"Saved model: {out_path}")
     print(f"Feature order: {FEATURE_ORDER}")
     print(f"Sanity ROC-AUC (synthetic): {metrics['roc_auc']:.3f}")
+    

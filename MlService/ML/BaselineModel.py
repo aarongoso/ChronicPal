@@ -1,4 +1,4 @@
-# Baseline model for AI microservice with goal of interpretable risk score using Logistic Regression
+# Baseline model uses a simple Logistic Regression model to produce an explainable risk score
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
@@ -20,8 +20,6 @@ class PredictionResult:
 class BaselineRiskModel:
    
     #Loads saved scikit-learn LogisticRegression model (joblib)
-    # if no model exists yet, returns a stable placeholder score
-
     def __init__(self, model_path: Optional[str] = None):
         base_dir = os.path.dirname(__file__)
         self.model_path = model_path or os.path.join(base_dir, "model.joblib")
@@ -35,7 +33,7 @@ class BaselineRiskModel:
         x_vector, features_used = build_feature_vector(payload)
 
         # scikit-learn expects 2D arrays (n_samples, n_features)
-        # scikit-learn predict_proba input shape rules
+        # Reshape the feature list into one row for scikit-learn
         x = np.array(x_vector, dtype=float).reshape(1, -1)
 
         # If trained model is available, use it

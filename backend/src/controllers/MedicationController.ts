@@ -2,12 +2,15 @@ const { MedicationLog } = require("../config/db");
 const { logAudit } = require("../utils/auditLogger");
 const { Op } = require("sequelize");
 
+// Handles medication search and medication logging for patients
+
 // External API clients serverside only, no keys exposed to browser
 // OpenFDA use set_id lookups
 const { openFdaSearch, openFdaGetBySetId } = require("../utils/external/OpenFdaClient");
 const { dailyMedSearch, dailyMedGetDetails } = require("../utils/external/DailyMedClient");
 
 // Maps OpenFDA/DailyMed responses into a small consistent DTO for the frontend
+// Convert different medication API responses into one format the frontend understands
 const mapMedicationResults = (source: string, data: any) => {
   if (source === "OPENFDA") {
     const results = (data?.results || []).slice(0, 10);
@@ -79,6 +82,7 @@ const searchMedication = async (req: any, res: any) => {
 
   try {
     // OpenFDA preferred
+    // Try OpenFDA first, then DailyMed if OpenFDA is unavailable or incomplete
     const openFdaData = await openFdaSearch(q);
     //const openFdaData = null; // force fallback for Postman testing
     if (openFdaData) {
@@ -109,6 +113,7 @@ const searchMedication = async (req: any, res: any) => {
 // Re fetch medication details server side (dont trust client medication fields)
 // Save MedicationLog row
 // Audit log action
+// Medication details are fetched server side so the frontend cant fake drug data
 const logMedication = async (req: any, res: any) => {
   const userId = req.user?.id;
   const ip = req.ip;
@@ -247,6 +252,7 @@ const logMedication = async (req: any, res: any) => {
 // Validated body (express validator)
 // Save MedicationLog row with source = MANUAL (no externalId)
 // Audit log action
+// Manual medication logs support supplements or medicines not found in external APIs
 const logMedicationManual = async (req: any, res: any) => {
   const userId = req.user?.id;
   const ip = req.ip;

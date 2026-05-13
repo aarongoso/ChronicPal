@@ -1,3 +1,5 @@
+// Main patient logging page for symptoms, food, and medication
+// It sends log data to the backend and refreshes recent activity
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -718,7 +720,7 @@ function DailyLog() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50 p-8 max-w-6xl mx-auto">
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">Daily Log</h1>
@@ -735,7 +737,7 @@ function DailyLog() {
             Back to Dashboard
           </button>
           <button
-            className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+            className="px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
             onClick={() => navigate("/patient/insights")}
           >
             View Insights
@@ -744,7 +746,7 @@ function DailyLog() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white p-3 rounded-xl shadow mb-6 flex gap-2 flex-wrap">
+      <div className="bg-white border border-slate-200 p-3 rounded-xl mb-6 flex gap-2 flex-wrap">
         <TabButton active={tab === "symptoms"} onClick={() => setTab("symptoms")}>
           Symptoms
         </TabButton>
@@ -758,13 +760,13 @@ function DailyLog() {
 
       {/* Status message */}
       {msg ? (
-        <div className="bg-white p-4 rounded-xl shadow mb-6">
+        <div className="bg-white border border-slate-200 p-4 rounded-xl mb-6">
           <p className="text-sm text-slate-700">{msg}</p>
         </div>
       ) : null}
 
       {/* Main card */}
-      <div className="bg-white p-6 rounded-xl shadow">
+      <div className="bg-white border border-slate-200 p-6 rounded-xl">
         <h2 className="text-xl font-semibold">{header}</h2>
 
         {/* Symptoms */}
@@ -773,7 +775,7 @@ function DailyLog() {
             <div>
               <label className="text-sm font-semibold text-slate-700">Log date</label>
               <input
-                className="mt-2 w-full border rounded px-3 py-2 text-sm"
+                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                 type="date"
                 value={logDate}
                 min={minLogDate}
@@ -783,7 +785,7 @@ function DailyLog() {
 
               <label className="text-sm font-semibold text-slate-700">Symptom</label>
               <input
-                className="mt-2 w-full border rounded px-3 py-2 text-sm"
+                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                 value={symptomName}
                 onChange={(e) => setSymptomName(e.target.value)}
                 placeholder="e.g. Headache"
@@ -806,7 +808,7 @@ function DailyLog() {
                 Notes (optional)
               </label>
               <textarea
-                className="mt-2 w-full border rounded px-3 py-2 text-sm"
+                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                 rows={3}
                 value={symptomNotes}
                 onChange={(e) => setSymptomNotes(e.target.value)}
@@ -814,7 +816,7 @@ function DailyLog() {
               />
 
               <button
-                className="mt-4 px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm disabled:opacity-60"
+                className="mt-4 px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm disabled:opacity-60"
                 disabled={busy || symptomName.trim().length < 2}
                 onClick={onLogSymptom}
               >
@@ -847,7 +849,7 @@ function DailyLog() {
             <div>
               <label className="text-sm font-semibold text-slate-700">Log date</label>
               <input
-                className="mt-2 w-full border rounded px-3 py-2 text-sm"
+                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                 type="date"
                 value={logDate}
                 min={minLogDate}
@@ -857,7 +859,7 @@ function DailyLog() {
 
               <label className="text-sm font-semibold text-slate-700">Search food</label>
               <input
-                className="mt-2 w-full border rounded px-3 py-2 text-sm"
+                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                 value={foodQuery}
                 onChange={(e) => setFoodQuery(e.target.value)}
                 placeholder="Search Nutritionix / OpenFoodFacts..."
@@ -885,7 +887,7 @@ function DailyLog() {
                       </div>
 
                       <button
-                        className="px-3 py-1.5 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm disabled:opacity-60"
+                        className="px-3 py-1.5 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm disabled:opacity-60"
                         disabled={busy}
                         onClick={() => onLogFoodFromSearch(it)}
                       >
@@ -917,7 +919,7 @@ function DailyLog() {
                         <p className="text-sm text-slate-800 truncate">{f.name}</p>
                         <div className="flex gap-2">
                           <button
-                            className="px-3 py-1.5 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm disabled:opacity-60"
+                            className="px-3 py-1.5 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm disabled:opacity-60"
                             disabled={busy}
                             onClick={() => onLogFavourite(f)}
                           >
@@ -944,14 +946,14 @@ function DailyLog() {
                 </p>
 
                 <input
-                  className="mt-3 w-full border rounded px-3 py-2 text-sm"
+                  className="mt-3 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                   value={foodManualName}
                   onChange={(e) => setFoodManualName(e.target.value)}
                   placeholder="Meal name (e.g. Chicken & rice)"
                 />
 
                 <input
-                  className="mt-3 w-full border rounded px-3 py-2 text-sm"
+                  className="mt-3 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                   value={foodManualCalories}
                   onChange={(e) => setFoodManualCalories(e.target.value)}
                   placeholder="Calories (optional)"
@@ -977,7 +979,7 @@ function DailyLog() {
                 </div>
 
                 <button
-                  className="mt-3 px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm disabled:opacity-60"
+                  className="mt-3 px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm disabled:opacity-60"
                   disabled={busy || foodManualName.trim().length < 2}
                   onClick={onLogFoodManual}
                 >
@@ -1018,7 +1020,7 @@ function DailyLog() {
             <div>
               <label className="text-sm font-semibold text-slate-700">Log date</label>
               <input
-                className="mt-2 w-full border rounded px-3 py-2 text-sm"
+                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                 type="date"
                 value={logDate}
                 min={minLogDate}
@@ -1028,7 +1030,7 @@ function DailyLog() {
 
               <label className="text-sm font-semibold text-slate-700">Search medication</label>
               <input
-                className="mt-2 w-full border rounded px-3 py-2 text-sm"
+                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                 value={medQuery}
                 onChange={(e) => setMedQuery(e.target.value)}
                 placeholder="Search OpenFDA / DailyMed..."
@@ -1055,7 +1057,7 @@ function DailyLog() {
                       </div>
 
                       <button
-                        className="px-3 py-1.5 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm disabled:opacity-60"
+                        className="px-3 py-1.5 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm disabled:opacity-60"
                         disabled={busy}
                         onClick={() => onLogMedFromSearch(it)}
                       >
@@ -1087,7 +1089,7 @@ function DailyLog() {
                         <p className="text-sm text-slate-800 truncate">{f.name}</p>
                         <div className="flex gap-2">
                           <button
-                            className="px-3 py-1.5 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm disabled:opacity-60"
+                            className="px-3 py-1.5 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm disabled:opacity-60"
                             disabled={busy}
                             onClick={() => onLogFavourite(f)}
                           >
@@ -1114,21 +1116,21 @@ function DailyLog() {
                 </p>
 
                 <input
-                  className="mt-3 w-full border rounded px-3 py-2 text-sm"
+                  className="mt-3 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                   value={medManualName}
                   onChange={(e) => setMedManualName(e.target.value)}
                   placeholder="Medication name (e.g. Vitamin D)"
                 />
 
                 <input
-                  className="mt-3 w-full border rounded px-3 py-2 text-sm"
+                  className="mt-3 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                   value={medManualDose}
                   onChange={(e) => setMedManualDose(e.target.value)}
                   placeholder="Dosage (optional) e.g. 200mg"
                 />
 
                 <button
-                  className="mt-3 px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm disabled:opacity-60"
+                  className="mt-3 px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm disabled:opacity-60"
                   disabled={busy || medManualName.trim().length < 2}
                   onClick={onLogMedManual}
                 >
@@ -1164,7 +1166,7 @@ function DailyLog() {
         ) : null}
       </div>
 
-      <div className="bg-white p-5 rounded-xl shadow mt-6">
+      <div className="bg-white border border-slate-200 p-5 rounded-xl mt-6">
         <p className="text-xs text-slate-500">
           Note: Health insights update as you log more data.
         </p>
@@ -1214,7 +1216,7 @@ const RecentPanel: React.FC<{
               </div>
               {onLog ? (
                 <button
-                  className="px-3 py-1.5 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm disabled:opacity-60"
+                  className="px-3 py-1.5 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm disabled:opacity-60"
                   disabled={false}
                   onClick={() => onLog(pickDisplayName(r))}
                 >

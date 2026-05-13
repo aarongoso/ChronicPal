@@ -8,9 +8,9 @@ import vegetableIcon from "../icons/vegetable.png";
 import examIcon from "../icons/examination.png";
 
 // Insights combines AI summaries + personal stats (summary only, no raw rows)
-// AI notes are built server side from correlations and returned as aiCards
+// Heakth notes are built server side from correlations and returned as summaries
 // riskScore comes from the ML service (logistic regression baseline, 0..1 probability)
-// The ML payload uses anonymised signals only (counts/avg severity/calories), not PII
+// The ML payload uses anonymised signals only (counts/avg severity/risk tag), not PII
 // Lightweight types for safer rendering
 type CountItem = { name: string; count: number };
 type SeverityBucket = { severity: number; count: number };
@@ -100,7 +100,7 @@ const StatCard: React.FC<{ title: string; value: string; sub?: string }> = ({
   sub,
 }) => {
   return (
-    <div className="bg-white p-5 rounded-xl shadow">
+    <div className="bg-white border border-slate-200 p-5 rounded-xl">
       <p className="text-xs text-slate-500">{title}</p>
       <p className="text-2xl font-bold mt-1">{value}</p>
       {sub ? <p className="text-xs text-slate-500 mt-1">{sub}</p> : null}
@@ -153,7 +153,7 @@ const ActivityCard: React.FC<{ title: string; pct: number; sub: string; color?: 
   color,
 }) => {
   return (
-    <div className="bg-white p-5 rounded-xl shadow flex items-center justify-between gap-4">
+    <div className="bg-white border border-slate-200 p-5 rounded-xl flex items-center justify-between gap-4">
       <div>
         <p className="text-xs text-slate-500">{title}</p>
         <p className="text-2xl font-bold mt-1">{sub}</p>
@@ -169,7 +169,7 @@ const SimpleList: React.FC<{ title: string; items: CountItem[]; iconSrc?: string
   iconSrc,
 }) => {
   return (
-    <div className="bg-white p-6 rounded-xl shadow">
+    <div className="bg-white border border-slate-200 p-6 rounded-xl">
       <div className="flex items-center gap-2">
         {iconSrc ? (
           <img src={iconSrc} alt="" className="h-5 w-5" />
@@ -360,7 +360,7 @@ const MedicationWeekGrid: React.FC<{ items: MedicationDailyPoint[]; days: number
     dt.toLocaleDateString(undefined, { day: "2-digit", month: "short" });
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow mt-6">
+    <div className="bg-white border border-slate-200 p-6 rounded-xl mt-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold">Medication Tracker (last 7 days)</h2>
@@ -528,7 +528,7 @@ function Insights() {
 
   const riskLevel = useMemo(() => {
     if (riskPct === null) {
-      return { label: "Unavailable", tone: "bg-slate-100 text-slate-600 border-slate-200" };
+      return { label: "Unavailable", tone: "bg-slate-50 text-slate-600 border-slate-200" };
     }
     if (riskPct < 35) {
       return { label: "Low", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" };
@@ -592,7 +592,7 @@ function Insights() {
   }, [data]);
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50 p-8 max-w-6xl mx-auto">
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">Personal Insights</h1>
@@ -602,7 +602,7 @@ function Insights() {
         </div>
 
         <button
-          className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+          className="px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
           onClick={() => navigate("/patient")}
         >
           Back to Dashboard
@@ -610,7 +610,7 @@ function Insights() {
       </div>
 
       {/* Days toggle */}
-      <div className="bg-white p-4 rounded-xl shadow mb-6 flex items-center justify-between flex-wrap gap-3">
+      <div className="bg-white border border-slate-200 p-4 rounded-xl mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
           <p className="text-sm font-semibold text-slate-800">Time window</p>
           <p className="text-xs text-slate-500">
@@ -641,13 +641,13 @@ function Insights() {
       </div>
 
       {loading ? (
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl">
           <p className="text-slate-700">Loading insights...</p>
         </div>
       ) : null}
 
       {!loading && errorMsg ? (
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl">
           <p className="text-red-700 font-semibold">Could not load insights</p>
           <p className="text-slate-700 mt-2 text-sm">{errorMsg}</p>
         </div>
@@ -656,7 +656,7 @@ function Insights() {
       {!loading && !errorMsg && data ? (
         <>
           {/* Flare-up Risk (ML probability shown as a percent) */}
-          <div className="bg-white p-6 rounded-xl shadow mb-6">
+          <div className="bg-white border border-slate-200 p-6 rounded-xl mb-6">
             <h2 className="text-lg font-semibold">Flare-up Risk</h2>
             <p className="text-xs text-slate-500 mt-1">
               A calculation of your flare-up chance based on your recent symptoms, food, and medication logs.
@@ -725,7 +725,7 @@ function Insights() {
             </div>
           </div>
           {/* Health note cards (built server-side from correlations + risk tags) */}
-          <div className="bg-white p-6 rounded-xl shadow mb-6">
+          <div className="bg-white border border-slate-200 p-6 rounded-xl mb-6">
             <h2 className="text-lg font-semibold">Health Notes</h2>
             <p className="text-xs text-slate-500 mt-1">
               Confidence guide: High = seen often. Medium = some pattern. Low = limited data.
@@ -805,7 +805,7 @@ function Insights() {
           </div>
 
           {/* Trend chart */}
-          <div className="bg-white p-6 rounded-xl shadow mb-6">
+          <div className="bg-white border border-slate-200 p-6 rounded-xl mb-6">
             <h2 className="text-lg font-semibold">Severity Trend</h2>
             <p className="text-xs text-slate-500 mt-1">
               Daily average symptom severity over your selected time window.

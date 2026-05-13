@@ -7,6 +7,10 @@ import {
   getDoctorPatientHistory,
 } from "../services/Api";
 
+// Doctor view of an assigned patient's history
+// shows profile, logs, AI summary, and doctor
+// notes after access checks pass
+
 type HistoryResponse = {
   patient: { id: number; email: string };
   assignment: { id: number; status: "ACTIVE" };
@@ -187,19 +191,19 @@ function DoctorPatientHistory() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-100 p-8">Loading patient history...</div>;
+    return <div className="min-h-screen bg-slate-50 p-8">Loading patient history...</div>;
   }
 
   if (message || !history) {
     return (
-      <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
+      <div className="min-h-screen bg-slate-50 p-8 max-w-6xl mx-auto">
         <button
           onClick={() => navigate("/doctor")}
-          className="mb-4 px-3 py-2 bg-slate-900 text-white rounded text-sm hover:bg-slate-800"
+          className="mb-4 px-3 py-2 bg-[#0f2744] text-white rounded text-sm hover:bg-[#1e3a5f]"
         >
           Back to dashboard
         </button>
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl">
           <p className="text-sm text-slate-700">{message || "Patient history unavailable."}</p>
         </div>
       </div>
@@ -207,15 +211,15 @@ function DoctorPatientHistory() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50 p-8 max-w-6xl mx-auto">
       <button
         onClick={() => navigate("/doctor")}
-        className="mb-4 px-3 py-2 bg-slate-900 text-white rounded text-sm hover:bg-slate-800"
+        className="mb-4 px-3 py-2 bg-[#0f2744] text-white rounded text-sm hover:bg-[#1e3a5f]"
       >
         Back to dashboard
       </button>
 
-      <div className="bg-white p-6 rounded-xl shadow mb-6">
+      <div className="bg-white border border-slate-200 p-6 rounded-xl mb-6">
         <h1 className="text-2xl font-bold">Patient History</h1>
         <p className="text-sm text-slate-600 mt-1">
           Read-only history for {history.patient.email}. Access is limited to active assignments.
@@ -223,7 +227,7 @@ function DoctorPatientHistory() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <section className="bg-white p-6 rounded-xl shadow">
+        <section className="bg-white border border-slate-200 p-6 rounded-xl">
           <h2 className="text-lg font-semibold">Overview</h2>
           <div className="mt-4 space-y-2 text-sm text-slate-700">
             <p><span className="font-medium">Patient:</span> {history.patient.email}</p>
@@ -268,7 +272,7 @@ function DoctorPatientHistory() {
           </div>
         </section>
 
-        <section className="bg-white p-6 rounded-xl shadow">
+        <section className="bg-white border border-slate-200 p-6 rounded-xl">
           <h2 className="text-lg font-semibold">Patient Summary</h2>
           {!aiSummary?.summary ? (
             <EmptyState label="No summary available." />
@@ -307,7 +311,7 @@ function DoctorPatientHistory() {
           )}
         </section>
 
-        <section className="bg-white p-6 rounded-xl shadow md:col-span-2">
+        <section className="bg-white border border-slate-200 p-6 rounded-xl md:col-span-2">
           <h2 className="text-lg font-semibold">Symptoms ({history.symptoms.count})</h2>
           <p className="mt-2 text-sm text-slate-600">Recent history (latest 10 entries)</p>
           {history.symptoms.items.length === 0 ? (
@@ -338,7 +342,7 @@ function DoctorPatientHistory() {
           )}
         </section>
 
-        <section className="bg-white p-6 rounded-xl shadow md:col-span-2">
+        <section className="bg-white border border-slate-200 p-6 rounded-xl md:col-span-2">
           <h2 className="text-lg font-semibold">Food Logs ({history.foodLogs.count})</h2>
           <p className="mt-2 text-sm text-slate-600">Recent history (latest 10 entries)</p>
           {history.foodLogs.items.length === 0 ? (
@@ -369,7 +373,7 @@ function DoctorPatientHistory() {
           )}
         </section>
 
-        <section className="bg-white p-6 rounded-xl shadow md:col-span-2">
+        <section className="bg-white border border-slate-200 p-6 rounded-xl md:col-span-2">
           <h2 className="text-lg font-semibold">
             Medication Logs ({history.medicationLogs.count})
           </h2>
@@ -404,7 +408,7 @@ function DoctorPatientHistory() {
           )}
         </section>
 
-        <section className="bg-white p-6 rounded-xl shadow">
+        <section className="bg-white border border-slate-200 p-6 rounded-xl">
           <h2 className="text-lg font-semibold">Doctor Notes</h2>
           <p className="mt-2 text-sm text-slate-600">Recent history (latest 10 entries)</p>
           <form onSubmit={handleAddNote} className="mt-4 space-y-3">
@@ -419,7 +423,7 @@ function DoctorPatientHistory() {
               <button
                 type="submit"
                 disabled={savingNote}
-                className="px-3 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:bg-slate-500"
+                className="px-3 py-2 text-sm bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] disabled:bg-slate-500"
               >
                 {savingNote ? "Saving..." : "Save Note"}
               </button>

@@ -6,6 +6,10 @@ const { authenticateToken, authorizeRoles } = require("../middleware/AuthMiddlew
 const { User, DoctorPatientAssignment } = require("../config/db");
 const { logAudit } = require("../utils/auditLogger");
 
+// Manages the consent flow between patients and doctors
+// Patients request access,
+//  doctors accept or reject and access can later be revoked
+
 /**
  * Minimal validation (kept inline for smallest diff).
  * adapted from common email validation examples on Stack Overflow

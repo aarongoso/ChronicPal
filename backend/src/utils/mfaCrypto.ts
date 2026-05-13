@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+// Encrypts MFA secrets before storing them so authenticator setup data is not saved in plaintext
 
 const ALGORITHM = "aes-256-gcm"; // authenticated encryption mode providing confidentiality and integrity
 

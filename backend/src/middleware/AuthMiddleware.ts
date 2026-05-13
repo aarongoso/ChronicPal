@@ -2,10 +2,8 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
 
-/**
- * Middleware to verify JWT access token
- * If valid, attaches user info (id, email, role) to req.user
- */
+// Middleware checks the JWT access token and attaches the logged-in user to req.user
+// Protected routes use this before allowing access
 const authenticateToken = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1]; // Expect format: "Bearer <token>"
@@ -41,6 +39,7 @@ const authenticateMfaSetupOrAccessToken = (req: any, res: any, next: any) => {
   try {
     // This variant is only for the MFA setup endpoints, where a short lived
     // setup token is allowed before full access/refresh tokens are issued
+    // MFA setup can use a temporary setup token before a full session exists
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = payload;
     next();
@@ -52,6 +51,7 @@ const authenticateMfaSetupOrAccessToken = (req: any, res: any, next: any) => {
 
 /**
  * Middleware to enforce role based access control
+ * Checks if the logged in users role is allowed for this route
  * Takes an array of allowed roles (e.g. ['admin', 'doctor'])
  */
 const authorizeRoles = (allowedRoles: string[]) => {

@@ -2,6 +2,7 @@ const crypto = require("crypto");
 
 // AES-256-GCM chosen because it provides both encryption and integrity (auth tag)
 // learned this from Node.js crypto docs + general encryption best practices
+// AES-256-GCM encrypts the value and lets us detect tampering
 const ALGORITHM = "aes-256-gcm";
 
 // loads encryption key from environment variable

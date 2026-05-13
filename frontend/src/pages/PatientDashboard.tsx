@@ -246,7 +246,7 @@ function PatientDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50 p-8 max-w-6xl mx-auto">
 
       <h1 className="text-3xl font-bold mb-4">Patient Dashboard</h1>
 
@@ -255,7 +255,7 @@ function PatientDashboard() {
       </p>
 
       {!loading && errorMsg ? (
-        <div className="bg-white p-6 rounded-xl shadow mb-6">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl mb-6">
           <p className="text-red-700 font-semibold">Could not load dashboard</p>
           <p className="text-slate-700 mt-2 text-sm">{errorMsg}</p>
         </div>
@@ -265,14 +265,14 @@ function PatientDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* Manage Profile */}
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl">
           <h2 className="text-lg font-semibold">My Health Profile</h2>
           <p className="text-sm text-slate-600 mt-1">
             View and update your personal health information such as conditions and allergies.
           </p>
 
           <button
-            className="mt-4 px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+            className="mt-4 px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
             onClick={() => navigate("/patient/profile")}
           >
             Manage Profile
@@ -280,7 +280,7 @@ function PatientDashboard() {
         </div>
 
         {/* ------ Symptoms Log ----- */}
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl">
           <h2 className="text-lg font-semibold">Symptoms Log</h2>
 
           <p className="text-sm text-slate-600 mt-1 mb-3">
@@ -302,7 +302,7 @@ function PatientDashboard() {
           </ul>
 
           <button
-            className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+            className="px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
             onClick={() => navigate("/patient/log?tab=symptoms")}
           >
             Log Symptoms
@@ -310,7 +310,7 @@ function PatientDashboard() {
         </div>
 
         {/* ---- Food/Medication Log ------*/}
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl">
           <h2 className="text-lg font-semibold">Food & Medication</h2>
 
           <p className="text-sm text-slate-600 mt-1 mb-4">
@@ -337,7 +337,7 @@ function PatientDashboard() {
             </ul>
 
             <button
-              className="mt-3 px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+              className="mt-3 px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
               onClick={() => navigate("/patient/log?tab=medication")}
             >
               Log Medication
@@ -362,7 +362,7 @@ function PatientDashboard() {
             </ul>
 
             <button
-              className="mt-3 px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+              className="mt-3 px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
               onClick={() => navigate("/patient/log?tab=food")}
             >
               Log Food
@@ -371,7 +371,7 @@ function PatientDashboard() {
         </div>
 
         {/*---- Health Insights --- */}
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl">
           <h2 className="text-lg font-semibold">Health Insights</h2>
 
           <p className="text-sm text-slate-600 mt-1 mb-4">
@@ -423,7 +423,7 @@ function PatientDashboard() {
           </div>
 
           <button
-            className="mt-5 px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+            className="mt-5 px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
             onClick={() => navigate("/patient/insights")}
           >
             View Detailed Insights
@@ -434,7 +434,7 @@ function PatientDashboard() {
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow md:col-span-2">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl md:col-span-2">
           <h2 className="text-lg font-semibold mb-2">Doctor Access</h2>
           <p className="text-sm text-slate-600 mt-1 mb-4">
             Request access for a doctor by email so they can review your records when approved.
@@ -446,10 +446,10 @@ function PatientDashboard() {
               value={doctorEmail}
               onChange={(e) => setDoctorEmail(e.target.value)}
               placeholder="Doctor email"
-              className="border rounded px-3 py-2 text-sm flex-1"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1"
             />
             <button
-              className="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm"
+              className="px-4 py-2 bg-[#0f2744] text-white rounded hover:bg-[#1e3a5f] text-sm"
               onClick={handleDoctorAccessRequest}
             >
               Request Access
@@ -493,7 +493,7 @@ function PatientDashboard() {
         </div>
 
         {/* Not yet implemented - potential future feature
-        <div className="bg-white p-6 rounded-xl shadow md:col-span-2">
+        <div className="bg-white border border-slate-200 p-6 rounded-xl md:col-span-2">
           <h2 className="text-lg font-semibold">Notifications</h2>
           <p className="text-sm text-slate-600 mt-1">
             Placeholder for real-time system alerts and reminders (Socket.io planned).

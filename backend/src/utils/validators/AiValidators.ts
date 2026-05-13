@@ -1,4 +1,5 @@
 const { body } = require("express-validator");
+// Validates AI request data and blocks obvious personal identifiers
 // Request validation for AI inference proxy routes
 // express-validator patterns and matchedData docs
 const predictValidators = [

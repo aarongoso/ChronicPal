@@ -1,4 +1,6 @@
 import express, { Request, Response } from "express";
+// Handles login, registration, token refresh, logout, and MFA flows
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
@@ -23,6 +25,7 @@ const FORCED_MFA_ROLES = new Set(["admin", "doctor"]);
 const signToken = (payload: any, expiresIn: string) =>
   jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
+// Creates short lived access token and a longer refresh token cookie
 const issueAuthTokens = (user: any, res: Response) => {
   const payload = { id: user.id, email: user.email, role: user.role };
   const accessToken = signToken(payload, "15m");
@@ -48,6 +51,7 @@ const resetMfaFailures = async (user: any) => {
   await user.save();
 };
 
+// Counts failed MFA attempts and temporarily locks MFA after too many tries
 const registerMfaFailure = async (user: any) => {
   const failedAttempts = (user.mfaFailedAttempts || 0) + 1;
   user.mfaFailedAttempts = failedAttempts;
@@ -171,6 +175,8 @@ router.post(
       if (FORCED_MFA_ROLES.has(user.role) && !user.mfaEnabled) {
         // Admins/doctors must finish MFA enrolment before getting any normal session tokens
         //The setup token is scoped to MFA setup only
+        // MFA setup uses a temporary setup token until
+        //  the user proves their authenticator code works
         const setupToken = signToken(
           {
             id: user.id,
@@ -192,6 +198,7 @@ router.post(
       if (mfaRequired) {
         // Step up login: password is correct, but full session is
         // deferred until the secondf actor check passes
+        // Password is accepted, but the real session waits for the MFA code
         const challengeToken = signToken(
           {
             id: user.id,
@@ -311,7 +318,7 @@ router.post(
 
 /**
  * POST /auth/mfa/setup/verify
- * Verifys initial TOTP and enables MFA
+ * Verifys first TOTP MFA code and before enabling MFA
  */
 router.post(
   "/mfa/setup/verify",
@@ -398,7 +405,7 @@ router.post(
 
 /**
  * POST /auth/mfa/verify
- * Completes step up login and issues access + refresh tokens
+ * Verifies the MFA code during login, then issues the real session tokens
  */
 router.post(
   "/mfa/verify",
@@ -608,7 +615,7 @@ router.post(
 
 /**
  * POST /auth/refresh
- * Issues new access token using refresh cookie
+ * Issues new access token using refresh cookie, if refresh cookie is still valid
  */
 router.post("/refresh", (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;

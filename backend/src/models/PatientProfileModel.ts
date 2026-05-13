@@ -64,7 +64,6 @@ const initPatientProfileModel = (sequelize: any) => {
 
       // ------- ENCRYPTED MEDICAL FIELDS ---------------
       // same AES-256-GCM pattern used previusly in the project
-      // learned this from 
       chronicConditionsCiphertext: {
         type: DataTypes.TEXT,
         allowNull: true,

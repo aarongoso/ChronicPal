@@ -8,7 +8,9 @@ import {
   uploadFile,
 } from "../services/Api";
 
-// Secure file page uses the backend encryption route (upload, view, export)
+// Secure file upload and viewing component
+// Files are sent to the backend for scanning, encryption,
+//  and access controlled storage
 
 type FileRecord = {
   id: number;
@@ -232,7 +234,7 @@ function FileUpload() {
                 <td className="p-3 space-x-2">
                   <button
                     onClick={() => handleDownload(item)}
-                    className="bg-slate-900 text-white px-3 py-1 rounded hover:bg-slate-800"
+                    className="bg-[#0f2744] text-white px-3 py-1 rounded hover:bg-[#1e3a5f]"
                   >
                     Download
                   </button>
@@ -252,7 +254,7 @@ function FileUpload() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50 p-8 max-w-6xl mx-auto">
 
       <h1 className="text-3xl font-bold mb-4">Secure Files</h1>
 
@@ -262,7 +264,7 @@ function FileUpload() {
       </p>
 
       {/* ------------- UPLOAD SECTION ------------------- */}
-      <div className="bg-white p-6 rounded-xl shadow mb-8">
+      <div className="bg-white border border-slate-200 p-6 rounded-xl mb-8">
         <h2 className="text-lg font-semibold mb-2">Upload File</h2>
         <p className="text-sm text-slate-600 mb-4">
           Supported formats: PDF, JPG, PNG. Files are scanned and encrypted before storage.
@@ -272,7 +274,7 @@ function FileUpload() {
           <select
             value={ownerPatientId}
             onChange={(e) => setOwnerPatientId(e.target.value)}
-            className="mb-4 block border rounded px-3 py-2 w-full max-w-xs"
+            className="mb-4 block border border-slate-200 rounded-lg px-3 py-2 text-sm w-full max-w-xs"
           >
             <option value="">Select assigned patient</option>
             {assignedPatients.map((patient) => (
@@ -292,7 +294,7 @@ function FileUpload() {
         <button
           onClick={handleUpload}
           disabled={role === "admin"}
-          className="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800 text-sm"
+          className="bg-[#0f2744] text-white px-4 py-2 rounded hover:bg-[#1e3a5f] text-sm"
         >
           Upload File
         </button>
@@ -306,7 +308,7 @@ function FileUpload() {
 
       {/* -------- VIEW FILES SECTION ---------------------- */}
       {/* metadata only shown here, actual file content stays encrypted server-side */}
-      <div className="bg-white p-6 rounded-xl shadow mb-8">
+      <div className="bg-white border border-slate-200 p-6 rounded-xl mb-8">
         <h2 className="text-lg font-semibold mb-2">Secure File Metadata</h2>
         <p className="text-sm text-slate-600 mb-4">
           Metadata only. File contents stay encrypted on the backend until download.

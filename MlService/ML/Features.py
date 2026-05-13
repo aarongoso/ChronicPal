@@ -1,11 +1,8 @@
 from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 
-# Keep consistent across training and inference
-# These are the only values the ML model receives
-# non-PII summary features derived from recent symptom, food, and medication logs
-# The order matters because the trained Logistic Regression model expects
-# the same column order at inference time
+# These are the feature columns the model was trained with
+# The same order is used here so predictions line up correctly
 FEATURE_ORDER = [
     "symptomCount",
     "avgSeverity",
@@ -37,11 +34,10 @@ RISK_TAG_FEATURES = {
 }
 
 
-# Converts the backend JSON payload into a fixed numeric feature vector
-# The returned dictionary is also sent back as featuresUsed so the prediction
-# can be explained in the UI
+# Turn the backend data into numbers the model can use
+# Also return those numbers so the UI can show what affected the prediction
 def build_feature_vector(payload: Dict[str, Any]) -> Tuple[List[float], Dict[str, float]]:
-    # Only non PII, explainable signals are used
+    # Uses only summary values, not personal notes or raw text
     symptoms = payload.get("symptoms", []) or []
     foods = payload.get("foodLogs", []) or []
     meds = payload.get("medicationLogs", []) or []
@@ -87,6 +83,6 @@ def build_feature_vector(payload: Dict[str, Any]) -> Tuple[List[float], Dict[str
                 features_used[feature_name] += 1.0
                 features_used["totalRiskTagCount"] += 1.0
 
-    # Fixed order vector, must match training
+    # Match the column order used during training
     vector = [features_used[name] for name in FEATURE_ORDER]
     return vector, features_used

@@ -1,5 +1,5 @@
 const { query, body } = require("express-validator");
-// Symptom logging validation
+// Symptom logging validation before it reaches the controller logic
 const validateSymptomLog = [
   body("symptomName")
     .isString()

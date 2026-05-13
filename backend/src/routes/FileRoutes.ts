@@ -4,9 +4,13 @@ const crypto = require("crypto");
 const fs = require("fs");
 const { Op } = require("sequelize");
 const path = require("path");
+
+// Handles secure file upload, listing, download,
+//  and deletion with access checks
+
 // https://github.com/expressjs/multer#memorystorage
 // https://dev.to/hexshift/a-complete-guide-to-handling-file-uploads-with-multer-in-nodejs-4iig
-// Accepts only PDF, JPG, JPEG, PNG and rejects dangerous extensions
+// Accepts only PDF, JPG, JPEG, PNG and rejects dangerous extensions (PDF kept for demo)
 // multer memory storage so files are never written unencrypted and logs audit event
 // Middleware to check JWT access token
 const { authenticateToken } = require("../middleware/AuthMiddleware");
@@ -26,6 +30,7 @@ const getValidId = (value: any) => {
 
 // Multer using in memory storage
 // Files will remain in RAM and never be written in plaintext
+// Files are kept in memory until they are scanned and encrypted
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -66,6 +71,7 @@ router.get(
       if (role === "patient") {
         whereClause.ownerPatientId = userId;
       } else if (role === "doctor") {
+        // Doctors can only see files for patients who have granted active access
         const assignments = await DoctorPatientAssignment.findAll({
           where: { doctorId: userId, status: "ACTIVE" },
           attributes: ["patientId"],
@@ -151,6 +157,7 @@ router.get(
 );
 
 // Download and decrypt a stored file only after access checks pass
+// Patients can download their own files, and doctors need an active assignment
 router.get(
   "/download/:id",
   authenticateToken,
@@ -226,7 +233,7 @@ router.get(
   }
 );
 
-// Delete stored file after access checks and keep metadata as a soft deleted record
+// Deletes the encrypted file from disk and marks the database record as deleted
 router.delete(
   "/delete/:id",
   authenticateToken,
@@ -405,6 +412,7 @@ router.post(
           sha256,
         });
       } catch (metadataError: any) {
+        // If metadata saving fails, remove the encrypted file so storage is not left messy/ untracked file
         try {
           fs.unlinkSync(path.join(ENCRYPTED_DIR, encryptedName));
         } catch (cleanupError: any) {

@@ -1,5 +1,7 @@
 const { query, body, validationResult } = require("express-validator");
 
+// Validates medication request data before it reaches the controller logic
+
 // Helper middleware to return validation errors
 const handleValidation = (req: any, res: any, next: any) => {
   const errors = validationResult(req);

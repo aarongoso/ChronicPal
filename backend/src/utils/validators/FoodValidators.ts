@@ -1,5 +1,7 @@
 const { query, body, validationResult } = require("express-validator");
 
+// Validates food request data before it reaches the controller logic
+
 // Helper middleware to return validation errors 
 // adapted from express validator examples
 const handleValidation = (req: any, res: any, next: any) => {

@@ -88,15 +88,15 @@ const DoctorRequest: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
+    <div className="flex justify-center items-center min-h-screen bg-slate-50 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 w-full max-w-md shadow-lg rounded-xl"
+        className="bg-white border border-slate-200 p-6 w-full max-w-md rounded-2xl"
       >
         <h2 className="text-2xl font-bold text-center mb-4">
           Doctor Account Request
         </h2>
-        <p className="text-xs text-gray-500 mb-3 text-center">
+        <p className="text-xs text-slate-400 mb-3 text-center">
           Requests are reviewed by an admin. If approved, you will receive an activation token from the admin (no email).
         </p>
 
@@ -105,7 +105,7 @@ const DoctorRequest: React.FC = () => {
           placeholder="Full name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
+          className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
           maxLength={120}
           required
         />
@@ -115,7 +115,7 @@ const DoctorRequest: React.FC = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
+          className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
           maxLength={100}
           required
         />
@@ -125,7 +125,7 @@ const DoctorRequest: React.FC = () => {
           placeholder="Clinic or Hospital"
           value={clinicOrHospital}
           onChange={(e) => setClinicOrHospital(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
+          className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
           maxLength={160}
           required
         />
@@ -135,7 +135,7 @@ const DoctorRequest: React.FC = () => {
           placeholder="License Number"
           value={licenseNumber}
           onChange={(e) => setLicenseNumber(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
+          className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm"
           maxLength={40}
           required
         />
@@ -144,14 +144,14 @@ const DoctorRequest: React.FC = () => {
           placeholder="Notes (optional)"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full p-2 border rounded mb-3 h-24"
+          className="w-full p-2 border border-slate-200 rounded-lg mb-3 text-sm h-24"
           maxLength={500}
         />
 
         <button
           type="submit"
           disabled={submitting}
-          className="bg-blue-600 w-full text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-60"
+          className="bg-[#0f2744] w-full text-white p-2 rounded-lg hover:bg-[#1e3a5f] disabled:opacity-60"
         >
           {submitting ? "Submitting..." : "Submit Request"}
         </button>
@@ -160,7 +160,7 @@ const DoctorRequest: React.FC = () => {
           <p className="text-center mt-4 text-sm text-red-600">{error}</p>
         )}
         {message && (
-          <p className="text-center mt-4 text-sm text-gray-700">{message}</p>
+          <p className="text-center mt-4 text-sm text-slate-600">{message}</p>
         )}
       </form>
     </div>

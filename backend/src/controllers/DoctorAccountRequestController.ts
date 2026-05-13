@@ -3,6 +3,9 @@ const { validationResult, matchedData } = require("express-validator");
 const { DoctorAccountRequest, User, sequelize } = require("../config/db");
 const { logAudit } = require("../utils/auditLogger");
 
+// Handles public doctor account requests and admin approval
+
+// Hash emails and licence numbers before storing them in audit logs
 const hashValue = (value: string | null) => {
   if (!value) return null;
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -185,7 +188,7 @@ exports.getDoctorRequestById = async (req: any, res: any) => {
 
 // POST /admin/doctor-requests/:id/approve
 // Uses a DB transaction + row lock to prevent double approval race conditions
-// Creates doctor user with placeholder password, then doctor sets real password via activation
+// Creates doctor account with activation token + placeholder password, then doctor sets real password via activation
 exports.approveDoctorRequest = async (req: any, res: any) => {
   const adminId = req.user?.id || null;
   const id = parseId(req.params.id);
@@ -205,6 +208,7 @@ exports.approveDoctorRequest = async (req: any, res: any) => {
   const emailHash = getEmailHash(request.email);
   const licenseHash = getLicenseHash(request.licenseNumber);
 
+  // Use a transaction so approval either fully completes or fully rolls back
   const transaction = await sequelize.transaction();
   try {
     // Lock request row so two admins cant approve at the same time (prevents duplicate doctor users)
@@ -237,7 +241,7 @@ exports.approveDoctorRequest = async (req: any, res: any) => {
       { transaction }
     );
 
-    // Store activation token hashed so DB leak doesnt expose usable tokens
+    // Activation tokens are stored hashed, so a database leak would not expose usable tokens
     const activationToken = crypto.randomBytes(32).toString("hex");
     const activationTokenHash = hashValue(activationToken);
     const activationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);

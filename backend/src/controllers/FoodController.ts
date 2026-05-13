@@ -4,8 +4,11 @@ const { FoodLog } = require("../config/db");
 const { logAudit } = require("../utils/auditLogger");
 const { Op } = require("sequelize");
 
+// Handles food search and food logging for patients
+
 // Maps Nutritionix/OpenFoodFacts responses into a small consistent DTO for the frontend
 //kept small to avoid leaking unnecessary external data
+// Convert different food API responses into one format the frontend understands
 const mapFoodResults = (source: string, data: any) => {
   if (source === "NUTRITIONIX") {
     const common = (data?.common || []).slice(0, 10);
@@ -132,6 +135,7 @@ const logFood = async (req: any, res: any) => {
       };
     } else if (sourceNorm === "OPENFOODFACTS") {
       // Works best when external id is barcode/code
+      // OpenFoodFacts uses barcode/code IDs, so the backend fetches details again before saving
       const offDetails = await openFoodFactsGetProduct(String(externalIdNorm));
       const p = offDetails?.product ? offDetails.product : offDetails;
 
@@ -209,6 +213,7 @@ const logFood = async (req: any, res: any) => {
 // Validated body (express validator)
 // Save FoodLog row with source = MANUAL (nutrition optional)
 // Audit log action
+// Manual food logs are used when the food is homemade or not found in external APIs
 const logFoodManual = async (req: any, res: any) => {
   const userId = req.user?.id;
   const ip = req.ip;

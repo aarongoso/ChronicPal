@@ -1,3 +1,5 @@
+// Builds anonymised patient summaries and
+// sends them to the ML service for prediction
 const { matchedData, validationResult } = require("express-validator");
 const { Op } = require("sequelize");
 
@@ -36,6 +38,8 @@ function parseWindowDays(req: any): number {
 
 // anonymised payload from DB logs
 // Only sends signals needed for modelling (severity, calories, counts, timestamps)
+// Build the ML payload from the logged-in patient's own logs
+// Send only summary signals to the ML service, not raw personal details
 async function buildAiPayloadFromDb(userId: number, windowDays: number) {
   const since = new Date();
   since.setDate(since.getDate() - windowDays);
@@ -123,7 +127,7 @@ async function buildAiPayloadFromDb(userId: number, windowDays: number) {
   };
 }
 
-// Rule is there enough data to call ML, prevents calling ML with meaningless input
+// Rule is there enough data to call ML, prevents calling ML wiht not enough meaningful data
 function hasEnoughData(payload: any): boolean {
   const symptomCount = Array.isArray(payload.symptoms) ? payload.symptoms.length : 0;
   const foodCount = Array.isArray(payload.foodLogs) ? payload.foodLogs.length : 0;
@@ -138,6 +142,7 @@ function hasEnoughData(payload: any): boolean {
 // symptom based correlation builder (timing windows)
 // Food looks back 12 hours from symptom event
 // Medication looks back 24 hours from symptom event
+// Build explainable timing patterns between symptoms, foods, and medications
  
 function buildSymptomTimingCorrelations(symptomRows: any[], foodRows: any[], medRows: any[]) {
   if (!Array.isArray(symptomRows) || symptomRows.length < 2) {
@@ -235,6 +240,7 @@ function buildSymptomTimingCorrelations(symptomRows: any[], foodRows: any[], med
     }
   }
 
+  // Helper functions to pick the most common foods, symptoms, or medications
   const topKey = (counts: Record<string, number>) => {
     const entries = Object.entries(counts);
     if (entries.length == 0) return null;
@@ -494,6 +500,7 @@ function buildAiCards(
 // POST /ai/predict
 // Secure backend to ML service
 // fetch logs server side for authenticated user, anonymised payload and send it to ML service
+// Return both the ML risk score and readable insight cards for the UI
 async function predictProxy(req: any, res: any) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -607,6 +614,7 @@ async function predictProxy(req: any, res: any) {
 // GET /ai/correlations
 // User specific, explainable correlations using existing tables
 // include symptom_logs and build symptom timing correlations
+// Builds summary stats and timing based correlations without calling the ML model
 async function getCorrelations(req: any, res: any) {
   const userId = getUserIdSafe(req);
   const ip = req.ip || req.connection?.remoteAddress || "unknown";
